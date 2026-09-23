@@ -24,7 +24,7 @@ document.getElementById("contactForm").addEventListener("submit", (e) => {
 
 
   function loadNavbar() {
-  fetch('../components/navbar.html') // عدل المسار حسب مكان navbar.html
+  fetch('../Components/navbar.html')
     .then(res => res.text())
     .then(data => {
       const container = document.getElementById('navbar');
@@ -33,11 +33,11 @@ document.getElementById("contactForm").addEventListener("submit", (e) => {
       // بعد ما النافبار يدخل، اربط ملفات CSS و JS الخاصة به
       const navbarCss = document.createElement('link');
       navbarCss.rel = 'stylesheet';
-      navbarCss.href = '../components/navbar.css'; // عدل المسار حسب مكان ملف CSS
+      navbarCss.href = '../Components/navbar.css';
       document.head.appendChild(navbarCss);
 
       const navbarScript = document.createElement('script');
-      navbarScript.src = '../components/navbar.js'; // عدل المسار حسب مكان ملف JS
+      navbarScript.src = '../Components/navbar.js';
       navbarScript.onload = function() {
         // إذا كان هناك دالة تهيئة في navbar.js مثل initNavbar()
         if (typeof initNavbar === 'function') {

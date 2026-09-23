@@ -12,6 +12,142 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      .followers-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .followers-toggle-btn {
+        appearance: none;
+        border: 1px solid rgba(255,255,255,0.35);
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+        min-width: 62px;
+        height: 25px;
+        border-radius: 999px;
+        cursor: pointer;
+        position: relative;
+        top: 9px;
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        margin-left: 8px;
+        line-height: 1;
+        flex-shrink: 0;
+        text-align: center;
+      }
+
+      .followers-toggle-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255,255,255,0.6);
+      }
+
+      .followers-toggle-btn.is-following {
+        background: rgba(255,255,255,0.18);
+        border-color: rgba(255,255,255,0.7);
+      }
+
+      .auth-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.72);
+      }
+
+      .auth-modal.is-visible {
+        display: flex;
+      }
+
+      .auth-modal-content {
+        position: relative;
+        width: min(100%, 360px);
+        padding: 28px;
+        background: #171313;
+        border: 1px solid rgba(224, 192, 151, 0.45);
+        color: #fff;
+        text-align: center;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      }
+
+      .auth-modal-close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        border: 0;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.4rem;
+        cursor: pointer;
+      }
+
+      .auth-modal-content h2 {
+        margin: 0 0 8px;
+        color: #e0c097;
+        font-size: 1.4rem;
+      }
+
+      .auth-modal-content p {
+        margin: 0 0 18px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.85rem;
+        line-height: 1.6;
+      }
+
+      .auth-modal-content input {
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        padding: 11px 12px;
+        border: 1px solid rgba(224, 192, 151, 0.35);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        outline: none;
+      }
+
+      .auth-modal-content input:focus {
+        border-color: #e0c097;
+      }
+
+      .auth-submit-btn,
+      .auth-mode-btn {
+        width: 100%;
+        padding: 11px 14px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .auth-submit-btn {
+        border: 1px solid #e0c097;
+        background: #e0c097;
+        color: #171313;
+      }
+
+      .auth-mode-btn {
+        margin-top: 10px;
+        border: 1px solid rgba(224, 192, 151, 0.5);
+        background: transparent;
+        color: #e0c097;
+      }
+
+      .auth-message {
+        min-height: 20px;
+        margin-top: 12px !important;
+        color: #e0c097 !important;
+      }
+    </style>
 </head>
 <body>
   <div id="navbar"></div>
@@ -19,7 +155,15 @@
   <div class="overlay"></div>
   <div class="header-content">
     <h1 id="name">Adrien Jalbat</h1>
-    <p id="tagline">I embody the royal shadow 🌑 cloaked in crimson as if it were my throne 🥀 🍷<br> <br> Blog Followers: 869 Fllower</p>
+    <p id="tagline">
+      I embody the royal shadow 🌑 cloaked in crimson as if it were my throne 🥀 🍷
+      <br><br>
+      <span class="followers-inline">
+        <span>Blog Followers:</span>
+        <span id="followersCount">1003</span>
+        <span>Followers</span>
+      </span>
+    </p>
     
     <!-- روابط التواصل الاجتماعي المحدثة -->
     <div class="social-links">
@@ -29,13 +173,27 @@
       <a href="https://www.threads.com/@adrien.jalbat?igshid=NTc4MTIwNjQ2YQ==" target="_blank" class="social-icon threads">
         <i class="fa-brands fa-threads"></i>
       </a>
-      <a href="https://linkedin.com/in/حسابك" target="_blank" class="social-icon linkedin">
-        <i class="fa-brands fa-linkedin-in"></i>
-      </a>
       <a href="Contact page/index.html" class="social-icon email">
         <i class="fas fa-envelope"></i>
       </a>
+      <button id="followersToggleBtn" class="followers-toggle-btn" type="button">Follow</button>
     </div>
+
+    <div id="authModal" class="auth-modal" aria-hidden="true">
+      <div class="auth-modal-content" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+        <button id="authModalClose" class="auth-modal-close" type="button" aria-label="Close">&times;</button>
+        <h2 id="authModalTitle">Create an account</h2>
+        <p id="authModalDescription">Create an account to follow and keep your follow status saved.</p>
+        <form id="authForm">
+          <input id="authEmail" type="email" placeholder="Gmail" autocomplete="email" required />
+          <input id="authPassword" type="password" placeholder="Password" autocomplete="new-password" minlength="6" required />
+          <button id="authSubmit" class="auth-submit-btn" type="submit">Create account</button>
+        </form>
+        <button id="authModeToggle" class="auth-mode-btn" type="button">I already have an account</button>
+        <p id="authMessage" class="auth-message" aria-live="polite"></p>
+      </div>
+    </div>
+
     <div id="creative-trigger" class="creative-trigger">My Essence</div>
   </div>
   <div id="creative-vision" class="vision-message">
@@ -278,7 +436,250 @@
   </div>
 </div>
 
+<script src="Components/navbar-utils.js"></script>
 <script src="Home page/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = 'https://duwwbbkwfwkyuiqsjtoh.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_uF0rmDqXvgEwSXDFSaqUZw_8ki63Ql4';
+  const FOLLOWERS_STORAGE_KEY = 'adrienFollowersState';
+  const PENDING_FOLLOW_KEY = 'pendingFollowAfterAuth';
+  const defaultFollowersState = { count: 1003, isFollowing: false };
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const followersCount = document.getElementById('followersCount');
+  const followersToggleBtn = document.getElementById('followersToggleBtn');
+  const authModal = document.getElementById('authModal');
+  const authModalClose = document.getElementById('authModalClose');
+  const authForm = document.getElementById('authForm');
+  const authEmail = document.getElementById('authEmail');
+  const authPassword = document.getElementById('authPassword');
+  const authSubmit = document.getElementById('authSubmit');
+  const authModeToggle = document.getElementById('authModeToggle');
+  const authModalTitle = document.getElementById('authModalTitle');
+  const authModalDescription = document.getElementById('authModalDescription');
+  const authMessage = document.getElementById('authMessage');
+  let currentUser = null;
+  let isLoginMode = false;
+
+  function getLocalFollowersState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(FOLLOWERS_STORAGE_KEY));
+      if (saved && typeof saved.count === 'number' && typeof saved.isFollowing === 'boolean') {
+        return saved;
+      }
+    } catch (error) {
+      console.warn('Could not read saved follower state:', error);
+    }
+
+    return defaultFollowersState;
+  }
+
+  function saveLocalFollowersState(state) {
+    localStorage.setItem(FOLLOWERS_STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function renderFollowers(state) {
+    followersCount.textContent = state.count;
+    followersToggleBtn.textContent = state.isFollowing ? 'Following' : 'Follow';
+    followersToggleBtn.classList.toggle('is-following', state.isFollowing);
+  }
+
+  function openAuthModal() {
+    authMessage.textContent = '';
+    authModal.classList.add('is-visible');
+    authModal.setAttribute('aria-hidden', 'false');
+    authEmail.focus();
+  }
+
+  function closeAuthModal() {
+    authModal.classList.remove('is-visible');
+    authModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function setAuthMode(loginMode) {
+    isLoginMode = loginMode;
+    authModalTitle.textContent = isLoginMode ? 'Log in' : 'Create an account';
+    authModalDescription.textContent = isLoginMode
+      ? 'Log in to continue following.'
+      : 'Create an account to follow and keep your follow status saved.';
+    authSubmit.textContent = isLoginMode ? 'Log in' : 'Create account';
+    authModeToggle.textContent = isLoginMode
+      ? 'Create a new account'
+      : 'I already have an account';
+    authPassword.autocomplete = isLoginMode ? 'current-password' : 'new-password';
+    authMessage.textContent = '';
+  }
+
+  async function ensureRemoteFollowersRow() {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/followers?id=eq.1&select=count`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+    if (Array.isArray(data) && data.length > 0) return;
+
+    await fetch(`${SUPABASE_URL}/rest/v1/followers`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify({ id: 1, count: 1003 }),
+    });
+  }
+
+  async function loadFollowersFromRemote() {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/followers?id=eq.1&select=count`, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Supabase read failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (Array.isArray(data) && data.length > 0 && typeof data[0].count === 'number') {
+        const savedFollowState = currentUser?.user_metadata?.is_following;
+        return {
+          count: data[0].count,
+          isFollowing: typeof savedFollowState === 'boolean' ? savedFollowState : false,
+        };
+      }
+
+      await ensureRemoteFollowersRow();
+      return defaultFollowersState;
+    } catch (error) {
+      console.warn('Supabase read failed, using local fallback.', error);
+      return getLocalFollowersState();
+    }
+  }
+
+  async function updateFollowersInRemote(nextCount) {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/followers?id=eq.1`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates',
+        },
+        body: JSON.stringify({ count: nextCount }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Supabase update failed: ${response.status}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.warn('Supabase update failed, using local fallback.', error);
+      return false;
+    }
+  }
+
+  let followersState = defaultFollowersState;
+
+  async function initFollowers() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session?.user ?? null;
+    followersState = await loadFollowersFromRemote();
+    if (!currentUser) saveLocalFollowersState(followersState);
+    renderFollowers(followersState);
+
+    if (currentUser && localStorage.getItem(PENDING_FOLLOW_KEY) === 'true') {
+      localStorage.removeItem(PENDING_FOLLOW_KEY);
+      await followOrUnfollow();
+    }
+  }
+
+  async function followOrUnfollow() {
+    const nextState = !followersState.isFollowing
+      ? { count: followersState.count + 1, isFollowing: true }
+      : { count: Math.max(0, followersState.count - 1), isFollowing: false };
+
+    const { error: userError } = await supabaseClient.auth.updateUser({
+      data: { is_following: nextState.isFollowing },
+    });
+
+    if (userError) {
+      console.error('Could not save follow status:', userError);
+      return;
+    }
+
+    followersState = nextState;
+    saveLocalFollowersState(followersState);
+    renderFollowers(followersState);
+
+    const synced = await updateFollowersInRemote(nextState.count);
+    if (!synced) {
+      saveLocalFollowersState(followersState);
+    }
+  }
+
+  followersToggleBtn.addEventListener('click', async () => {
+    if (!currentUser) {
+      localStorage.setItem(PENDING_FOLLOW_KEY, 'true');
+      openAuthModal();
+      return;
+    }
+
+    await followOrUnfollow();
+  });
+
+  authModalClose.addEventListener('click', closeAuthModal);
+  authModeToggle.addEventListener('click', () => setAuthMode(!isLoginMode));
+  authModal.addEventListener('click', (event) => {
+    if (event.target === authModal) closeAuthModal();
+  });
+
+  authForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    authSubmit.disabled = true;
+    authMessage.textContent = 'Please wait...';
+
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    const result = isLoginMode
+      ? await supabaseClient.auth.signInWithPassword({ email, password })
+      : await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.href },
+        });
+
+    authSubmit.disabled = false;
+
+    if (result.error) {
+      authMessage.textContent = result.error.message;
+      return;
+    }
+
+    if (!isLoginMode && !result.data.session) {
+      authMessage.textContent = 'Check your Gmail and confirm your account, then return here.';
+      return;
+    }
+
+    currentUser = result.data.user;
+    closeAuthModal();
+    await followOrUnfollow();
+  });
+
+  initFollowers();
+</script>
 
 <!-- JavaScript للـ Signature Lightbox -->
 <script>

@@ -2,7 +2,7 @@
 function fixNavbarLinks(navbarSelector = '#navbar') {
   const path = window.location.pathname;
   // احسب عمق الصفحة الحالي
-  const segments = path.replace(/^\//, '').split('/');
+  const segments = path.replace(/^\//, '').split('/').filter(Boolean);
   if (segments.length && segments[segments.length - 1].match(/\.(html?|js|css)$/)) {
     segments.pop();
   }
