@@ -1,0 +1,225 @@
+html, body {
+  background-color: #0D0D0D;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: block;
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Internet Explorer/Edge */
+}
+
+.page-content {
+  min-height: calc(100vh - 80px); /* 80px = تقدير ارتفاع الفوتر */
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* الصورة تتوسط عمودياً */
+  gap: 40px;
+  padding: 60px 20px 0 20px;
+  max-width: 1200px;
+  margin: auto;
+  font-family: 'Georgia', serif;
+  color: #fff;
+}
+
+.form-section {
+  flex: 1;
+  padding: 20px 40px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.section-subtitle {
+  font-weight: 300;
+  font-size: 16px;
+  color: #bbb;
+  margin-right: 10px;
+  margin-bottom: 0px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #bbb;
+   margin-bottom: 0px;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: bold;
+  color: #cba96f;
+  margin-top: 0;            /* ← أضف هذا السطر */
+  margin-bottom: 40px;
+}
+
+.name-fields {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.message-box {
+  height: 120px;            /* يبدأ دومًا بهذا الارتفاع */
+  min-height: 120px;        /* أقل ارتفاع */
+  max-height: 500px;        /* لا يتمدد أكثر من كده */
+  resize: vertical;         /* يسمح بالتمدد رأسي فقط */
+  overflow-y: auto;         /* يظهر سكرول داخلي عند تجاوز الحد */
+}
+
+input,
+textarea {
+  background-color: #fff;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+input::placeholder,
+textarea::placeholder {
+  font-family: 'Georgia', serif;
+}
+
+.submit-btn {
+  font-size: 14px;
+  font-family: 'Playfair Display', serif;
+  background-color: #CBB9A3;
+  color: #fff;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #cba96f;
+}
+
+.image-section {
+  flex: 1;
+  padding: 20px;
+}
+
+.zoom-wrapper {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.zoom-wrapper img {
+  width: 100%;
+  transition: transform 0.4s ease;
+  display: block;
+}
+
+.zoom-wrapper img:hover {
+  transform: scale(1.1); /* زووم داخلي فقط */
+}
+
+.footer {
+  width: 100%;
+  color: #999;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    padding: 40px 16px;
+    gap: 30px;
+  }
+
+  .form-section {
+    padding: 0;
+    padding-top: 50px;
+  }
+
+  .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* مسافة بسيطة بين العناصر */
+  width: 100%;
+  flex-wrap: nowrap;
+  margin-bottom: 10px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  flex-shrink: 0; /* ما تصغرش */
+}
+
+.line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #bbb;
+}
+
+  .name-fields {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  input,
+  textarea {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    font-size: 16px;
+    background-color: #cba96f;
+  }
+
+  .image-section {
+    padding: 0;
+  }
+
+  .zoom-wrapper {
+    border-radius: 8px;
+  }
+
+  .footer {
+  padding: 0px 0px 10px;
+}
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 22px;
+  }
+
+  .section-subtitle {
+    font-size: 12px;
+  }
+
+  .submit-btn {
+    padding: 10px;
+    background-color: #cba96f;
+  }
+
+   .footer {
+  padding: 0px 0px 10px;
+}
+}

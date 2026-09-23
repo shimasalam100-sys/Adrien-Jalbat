@@ -1,0 +1,80 @@
+<!-- ✅ Glass Navigation Bar -->
+<nav class="navbar">
+  <div class="navbar-left">
+    <!-- ✅ زر الهامبرغر (ظاهر فقط على الشاشات الصغيرة) -->
+<button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+  ☰
+</button>
+    <div class="logo">Adrien Jalbat</div>
+  </div>
+
+  <ul class="navbar-center">
+    <li><a href="../Home.html" class="nav-link">Home</a></li>
+    <li class="navbar-portfolio-item">
+  <a href="../Portfolio pages" class="nav-link" id="portfolioItemLink">Portfolio</a>
+</li>
+
+<!-- ✅ New Dropdown Outside UL but visually linked -->
+<div class="portfolio-dropdown">
+  <a href="../Portfolio pages/Fashion page/index.html" class="dropdown-link">Fashion</a>
+  <a href="../Portfolio pages/My Designs page/index.html" class="dropdown-link">My Designs</a>
+</div>
+
+    <li><a href="../Contact page/index.html" class="nav-link">Contact</a></li>
+  </ul>
+
+  <div class="navbar-right">
+    <div class="language-toggle">
+      <button id="languageBtn" class="notranslate" translate="no">
+  <img id="languageFlag" src="https://flagcdn.com/w20/gb.png" alt="flag">
+  <span id="languageCode">EN</span>
+</button>
+</div>
+</div>
+
+<ul class="language-dropdown" id="languageDropdown">
+  <li><a href="#" data-lang="en"><img src="https://flagcdn.com/w20/gb.png" alt="English"> English</a></li>
+  <li><a href="#" data-lang="fr"><img src="https://flagcdn.com/w20/fr.png" alt="Français"> Français</a></li>
+  <li><a href="#" data-lang="it"><img src="https://flagcdn.com/w20/it.png" alt="Italiano"> Italiano</a></li>
+  <li><a href="#" data-lang="es"><img src="https://flagcdn.com/w20/es.png" alt="Español"> Español</a></li>
+  <li><a href="#" data-lang="de"><img src="https://flagcdn.com/w20/de.png" alt="Deutsch"> Deutsch</a></li>
+  <li><a href="#" data-lang="pt"><img src="https://flagcdn.com/w20/pt.png" alt="Português"> Português</a></li>
+  <li><a href="#" data-lang="ru"><img src="https://flagcdn.com/w20/ru.png" alt="Русский"> Русский</a></li>
+  <li><a href="#" data-lang="ja"><img src="https://flagcdn.com/w20/jp.png" alt="日本語"> 日本語</a></li>
+  <li><a href="#" data-lang="ko" class="notranslate" translate="no"><img src="https://flagcdn.com/w20/kr.png" alt="한국어"> 한국어</a></li>
+  <li><a href="#" data-lang="ar"><img src="https://flagcdn.com/w20/sa.png" alt="العربية"> العربية</a></li>
+</ul>
+</nav>
+
+<!-- ✅ Hidden Translate Element -->
+<div id="google_translate_element" style="display: none;"></div>
+
+<!-- ✅ القائمة الجانبية -->
+<div class="side-menu" id="sideMenu">
+  <button class="close-btn" id="closeSideMenu" aria-label="Close menu">
+    <!-- SVG X -->
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M18 6L6 18" stroke="#f33" stroke-width="2" stroke-linecap="round"/>
+      <path d="M6 6L18 18" stroke="#f33" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <ul class="side-nav">
+    <li><a href="../Home.html">Home</a></li>
+    
+    <li class="side-portfolio-item">
+      <button id="sidePortfolioToggle" class="portfolio-toggle-btn">
+  Portfolio
+  <svg class="arrow-icon" width="12" height="12" viewBox="0 0 24 24" fill="none">
+    <path d="M6 9l6 6 6-6" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+      <ul class="side-portfolio-dropdown" id="sidePortfolioDropdown">
+        <li><a href="../Portfolio pages/Fashion page/index.html">Fashion</a></li>
+        <li><a href="../Portfolio pages/My Designs page/index.html">My Designs</a></li>
+      </ul>
+    </li>
+
+    <li><a href="../Contact page/index.html">Contact</a></li>
+  </ul>
+</div>

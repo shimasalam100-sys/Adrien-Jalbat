@@ -1,0 +1,399 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: transparent; /* ✅ شفاف تمامًا */
+  backdrop-filter: blur(20px) saturate(160%); /* ✅ عزل بصري قوي */
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: none; /* ← نضمن مفيش ظل يبوظ النقاء */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 40px;
+  z-index: 999;
+  box-sizing: border-box;
+  font-family: 'Playfair Display', serif;
+}
+
+.navbar-left .logo {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.navbar-center {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  justify-content: center;
+}
+
+.navbar-center li {
+  position: relative;
+}
+
+.navbar-center .nav-link {
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.3s ease;
+  padding: 6px 4px;
+  display: inline-block;
+  color: #fff;
+}
+
+.navbar-center .nav-link:hover,
+.navbar-center .nav-link.active {
+  color: #cba96f;
+}
+
+.navbar-center .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background-color: #cba96f;
+  transition: width 0.4s ease;
+}
+
+.navbar-center .nav-link:hover::after,
+.navbar-center .nav-link.active::after {
+  width: 100%;
+}
+
+/* ✅ القائمة الجديدة الملتحمة بالنافبار */
+/* ✅ القائمة الجديدة الملتحمة بالنافبار بشكل نهائي */
+.portfolio-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px); /* ← يبدأ مخفي بانزلاق لأعلى */
+  background-color: transparent;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: none;
+  border-radius: 0 0 12px 12px;
+  padding: 18px 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px 36px;
+  max-width: 600px;
+  width: 90%;
+  z-index: 998;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  margin-top: -1px;
+  font-family: 'Playfair Display', serif;
+}
+
+/* ✅ عند فتح القائمة */
+.portfolio-dropdown.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0); /* ← انزلاق للأسفل */
+}
+
+/* ✅ روابط داخل القائمة بنفس تنسيق عناصر النافبار */
+.portfolio-dropdown .dropdown-link {
+  position: relative;
+  color: #fff;
+  font-size: 15px;
+  text-decoration: none;
+  display: inline-block;
+  padding: 6px 4px;
+  transition: color 0.3s ease;
+  background: none;
+  width: fit-content; /* ✅ هذا هو المفتاح */
+}
+
+.portfolio-dropdown .dropdown-link:hover,
+.portfolio-dropdown .dropdown-link.active {
+  color: #cba96f;
+  background: none;        /* ← يمنع ظهور مستطيل خلف النص */
+}
+
+.portfolio-dropdown .dropdown-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background-color: #cba96f;
+  transition: width 0.4s ease;
+}
+
+.portfolio-dropdown .dropdown-link:hover::after,
+.portfolio-dropdown .dropdown-link.active::after {
+  width: 100%;
+}
+
+.dropdown li {
+  padding: 6px 20px;
+}
+
+.navbar-right {
+  position: relative;
+}
+
+.language-toggle button {
+  background: none;
+  color: #fff;
+  border: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.language-toggle button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: transparent;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: none;
+  list-style: none;
+  padding: 8px 0;
+  margin-top: 0;
+  border-radius: 0 0 8px 8px;
+  box-shadow: none;
+  font-family: 'Playfair Display', serif;
+  /* ✅ تأثير الانزلاق */
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 100;
+}
+
+.language-dropdown.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.language-dropdown li {
+  padding: 6px 20px;
+}
+
+.language-dropdown a {
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  white-space: nowrap;       /* ✅ يمنع التفاف النص */
+  word-break: keep-all;      /* ✅ يمنع تكسير الكلمة */
+}
+
+.language-dropdown a:hover {
+  color: #cba96f;
+  background-color: transparent;
+}
+
+/* ✅ تمييز اللغة الحالية */
+.active-language {
+  background-color: transparent;
+  color: #cba96f !important;
+}
+
+/* ✅ إخفاء شريط الترجمة العلوي */
+body > .skiptranslate {
+  display: none !important;
+  height: 0 !important;
+  visibility: hidden !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+/* ✅ Responsive mode تحت 768px */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 20px;
+  }
+
+  .navbar-left,
+  .navbar-right {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .navbar-center {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .navbar-center .nav-link {
+    font-size: 16px;
+    padding: 10px 0;
+  }
+
+  .language-toggle {
+    justify-content: flex-end;
+  }
+}
+
+/* ✅ زر الهامبرغر */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+    position: absolute;
+    left: 20px;
+    top: 18px;
+  }
+
+  .navbar-left {
+    justify-content: flex-start;
+  }
+
+  .navbar .logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+  }
+
+  .navbar-right {
+    justify-content: flex-end;
+  }
+
+  .navbar-center {
+    display: none !important; /* إخفاء القائمة العادية */
+  }
+}
+
+/* ✅ القائمة الجانبية */
+.side-menu {
+  font-family: 'Playfair Display', serif;
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 70%;
+  max-width: 300px;
+  height: 100vh;
+  background-color: rgba(34, 34, 34, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  padding: 24px 20px;
+  box-sizing: border-box;
+  transition: left 0.4s ease;
+  z-index: 1000;
+}
+
+.side-menu.show {
+  left: 0;
+}
+
+.side-menu .close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 24px;
+  padding: 4px;
+}
+
+.side-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.side-nav li {
+  margin-bottom: 16px;
+}
+
+.side-nav a,
+.side-nav button {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  display: inline-block;
+  transition: color 0.3s ease;
+}
+
+.side-nav a:hover,
+.side-nav button:hover {
+  color: #cba96f;
+}
+
+/* ✅ القائمة الفرعية داخل القائمة الجانبية */
+.side-portfolio-dropdown {
+  list-style: none;
+  padding-left: 16px;
+  margin-top: 8px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.side-portfolio-dropdown.show {
+  max-height: 500px; /* كبير كفاية لكل العناصر */
+}
+
+.portfolio-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  background: none;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.3s ease;
+}
+
+.portfolio-toggle-btn:hover {
+  color: #cba96f;
+}
+
+.portfolio-toggle-btn .arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+/* عند فتح القائمة نخلي السهم يتقلب لفوق */
+.side-portfolio-dropdown.show ~ .arrow-icon,
+.portfolio-toggle-btn.active .arrow-icon {
+  transform: rotate(180deg);
+}

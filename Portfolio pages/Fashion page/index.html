@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Adrien Jalbtier - Portfolio</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="../../Components/navbar-utils.js"></script>
+  <!-- Google Translate Script -->
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+  <div id="navbar"></div>
+  
+  <div class="grid-wrapper">
+  <!-- Header -->
+  <header class="about-section">
+    <div class="about-text">
+      <div class="section-header">
+        <span class="section-subtitle">Portfolio</span>
+        <div class="line"></div>
+      </div>
+      <h2 class="section-title">Fashion</h2>
+    </div>
+  </header>
+
+  <!-- Gallery Images -->
+  <div class="gallery-img-wrapper"><img src="images/1.png" class="gallery-img" alt="Photo 1"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/2.png" class="gallery-img" alt="Photo 2"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/3.png" class="gallery-img" alt="Photo 3"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/4.png" class="gallery-img" alt="Photo 4"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/5.png" class="gallery-img" alt="Photo 4"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/6.png" class="gallery-img" alt="Photo 4"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/7.png" class="gallery-img" alt="Photo 1"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/8.png" class="gallery-img" alt="Photo 2"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/9.png" class="gallery-img" alt="Photo 3"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/10.png" class="gallery-img" alt="Photo 4"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/11.png" class="gallery-img" alt="Photo 4"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/12.png" class="gallery-img" alt="Photo 4"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/13.png" class="gallery-img" alt="Photo 1"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/14.png" class="gallery-img" alt="Photo 2"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/15.png" class="gallery-img" alt="Photo 3"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/16.png" class="gallery-img" alt="Photo 4"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/17.png" class="gallery-img" alt="Photo 4"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/18.png" class="gallery-img" alt="Photo 4"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/19.png" class="gallery-img" alt="Photo 1"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/20.png" class="gallery-img" alt="Photo 2"><div class="overlay"></div></div>
+  <div class="gallery-img-wrapper"><img src="images/21.png" class="gallery-img" alt="Photo 3"><div class="overlay"></div></div>
+    <!-- أضف المزيد حسب الحاجة -->
+
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-header">
+      <div class="slideshow-controls">
+        <!-- زر التشغيل -->
+<div class="play-button" id="playButton">
+  <span id="playIcon">
+    <!-- ▶ Play -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+  </span>
+</div>
+        <div class="image-counter" id="imageCounter">1 / 4</div>
+      </div>
+      <!-- زر الإغلاق -->
+<span class="close-btn" id="closeLightbox">
+  <!-- × Close -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="white">
+    <path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.89 4.89a1 1 0 0 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z"/>
+  </svg>
+</span>
+    </div>
+    <div class="lightbox-content">
+      <!-- زر السابق ◀ -->
+<div class="lightbox-nav left" id="prevBtn">
+  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+    <path d="M15.41 7.41 14 6 8 12l6 6 1.41-1.41L10.83 12z"/>
+  </svg>
+</div>
+      <img class="lightbox-img" id="lightboxImg" src="" alt="Expanded" />
+      <!-- زر التالي ▶ -->
+<div class="lightbox-nav right" id="nextBtn">
+  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+    <path d="M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+  </svg>
+</div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    © Adrien Jalbtier 2025–<span id="year"></span>. All rights reserved.
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.6.0/color-thief.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

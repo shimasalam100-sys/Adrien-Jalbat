@@ -1,0 +1,732 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: transparent; /* ✅ شفاف تمامًا */
+  backdrop-filter: blur(20px) saturate(160%); /* ✅ عزل بصري قوي */
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: none; /* ← نضمن مفيش ظل يبوظ النقاء */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 40px;
+  z-index: 999;
+  box-sizing: border-box;
+  font-family: 'Playfair Display', serif;
+}
+
+.navbar-left .logo {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.navbar-center {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  justify-content: center;
+}
+
+.navbar-center li {
+  position: relative;
+}
+
+.navbar-center .nav-link {
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.3s ease;
+  padding: 6px 4px;
+  display: inline-block;
+  color: #fff;
+}
+
+.navbar-center .nav-link:hover,
+.navbar-center .nav-link.active {
+  color: #cba96f;
+}
+
+.navbar-center .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background-color: #cba96f;
+  transition: width 0.4s ease;
+}
+
+.navbar-center .nav-link:hover::after,
+.navbar-center .nav-link.active::after {
+  width: 100%;
+}
+
+/* ✅ القائمة الجديدة الملتحمة بالنافبار */
+/* ✅ القائمة الجديدة الملتحمة بالنافبار بشكل نهائي */
+.portfolio-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px); /* ← يبدأ مخفي بانزلاق لأعلى */
+  background-color: transparent;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: none;
+  border-radius: 0 0 12px 12px;
+  padding: 18px 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px 36px;
+  max-width: 600px;
+  width: 90%;
+  z-index: 998;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  margin-top: -1px;
+  font-family: 'Playfair Display', serif;
+}
+
+/* ✅ عند فتح القائمة */
+.portfolio-dropdown.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0); /* ← انزلاق للأسفل */
+}
+
+/* ✅ روابط داخل القائمة بنفس تنسيق عناصر النافبار */
+.portfolio-dropdown .dropdown-link {
+  position: relative;
+  color: #fff;
+  font-size: 15px;
+  text-decoration: none;
+  display: inline-block;
+  padding: 6px 4px;
+  transition: color 0.3s ease;
+  background: none;
+  width: fit-content; /* ✅ هذا هو المفتاح */
+}
+
+.portfolio-dropdown .dropdown-link:hover,
+.portfolio-dropdown .dropdown-link.active {
+  color: #cba96f;
+  background: none;        /* ← يمنع ظهور مستطيل خلف النص */
+}
+
+.portfolio-dropdown .dropdown-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background-color: #cba96f;
+  transition: width 0.4s ease;
+}
+
+.portfolio-dropdown .dropdown-link:hover::after,
+.portfolio-dropdown .dropdown-link.active::after {
+  width: 100%;
+}
+
+.dropdown li {
+  padding: 6px 20px;
+}
+
+.navbar-right {
+  position: relative;
+}
+
+.language-toggle button {
+  background: none;
+  color: #fff;
+  border: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.language-toggle button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: transparent;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: none;
+  list-style: none;
+  padding: 8px 0;
+  margin-top: 0;
+  border-radius: 0 0 8px 8px;
+  box-shadow: none;
+  font-family: 'Playfair Display', serif;
+  /* ✅ تأثير الانزلاق */
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 100;
+}
+
+.language-dropdown.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.language-dropdown li {
+  padding: 6px 20px;
+}
+
+.language-dropdown a {
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  white-space: nowrap;       /* ✅ يمنع التفاف النص */
+  word-break: keep-all;      /* ✅ يمنع تكسير الكلمة */
+}
+
+.language-dropdown a:hover {
+  color: #cba96f;
+  background-color: transparent;
+}
+
+/* ✅ تمييز اللغة الحالية */
+.active-language {
+  background-color: transparent;
+  color: #cba96f !important;
+}
+
+/* ✅ إخفاء شريط الترجمة العلوي */
+body > .skiptranslate {
+  display: none !important;
+  height: 0 !important;
+  visibility: hidden !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+/* ✅ Responsive mode تحت 768px */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 20px;
+  }
+
+  .navbar-left,
+  .navbar-right {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .navbar-center {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .navbar-center .nav-link {
+    font-size: 16px;
+    padding: 10px 0;
+  }
+
+  .language-toggle {
+    justify-content: flex-end;
+  }
+}
+
+/* ✅ زر الهامبرغر */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+    position: absolute;
+    left: 20px;
+    top: 18px;
+  }
+
+  .navbar-left {
+    justify-content: flex-start;
+  }
+
+  .navbar .logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+  }
+
+  .navbar-right {
+    justify-content: flex-end;
+  }
+
+  .navbar-center {
+    display: none !important; /* إخفاء القائمة العادية */
+  }
+}
+
+/* ✅ القائمة الجانبية */
+.side-menu {
+  font-family: 'Playfair Display', serif;
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 70%;
+  max-width: 300px;
+  height: 100vh;
+  background-color: rgba(34, 34, 34, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  padding: 24px 20px;
+  box-sizing: border-box;
+  transition: left 0.4s ease;
+  z-index: 1000;
+}
+
+.side-menu.show {
+  left: 0;
+}
+
+.side-menu .close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 24px;
+  padding: 4px;
+}
+
+.side-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.side-nav li {
+  margin-bottom: 16px;
+}
+
+.side-nav a,
+.side-nav button {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  display: inline-block;
+  transition: color 0.3s ease;
+}
+
+.side-nav a:hover,
+.side-nav button:hover {
+  color: #cba96f;
+}
+
+/* ✅ القائمة الفرعية داخل القائمة الجانبية */
+.side-portfolio-dropdown {
+  list-style: none;
+  padding-left: 16px;
+  margin-top: 8px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.side-portfolio-dropdown.show {
+  max-height: 500px; /* كبير كفاية لكل العناصر */
+}
+
+.portfolio-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  background: none;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.3s ease;
+}
+
+.portfolio-toggle-btn:hover {
+  color: #cba96f;
+}
+
+.portfolio-toggle-btn .arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+/* عند فتح القائمة نخلي السهم يتقلب لفوق */
+.side-portfolio-dropdown.show ~ .arrow-icon,
+.portfolio-toggle-btn.active .arrow-icon {
+  transform: rotate(180deg);
+}
+
+/* ✅ Layout */
+body {
+  margin: 0;
+  background-color: #0d0d0d;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Internet Explorer/Edge */
+}
+
+.grid-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  padding: 0 60px 60px;
+  flex-grow: 1;
+}
+
+/* ✅ Header */
+header {
+  grid-column: 1 / -1;
+  padding-top: 70px;       /* ← بدل 60 */
+  margin-bottom: -50px;    /* ← يضغط المسافة على الصور */
+}
+
+.about-text {
+  margin-left: 15px;
+  max-width: 50%;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.section-subtitle {
+  font-weight: 300;
+  font-size: 16px;
+  color: #bbb;
+  margin-right: 10px;
+  margin-bottom: 0px;
+}
+
+.line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #bbb;
+   margin-bottom: 0px;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: bold;
+  color: #cba96f;
+  margin-top: 0;            /* ← أضف هذا السطر */
+  margin-bottom: 40px;
+}
+
+/* ✅ Gallery */
+.gallery-img-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 2.7;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: 0.3s;
+  z-index: 2;
+}
+
+.gallery-img-wrapper:hover .overlay {
+  opacity: 1;
+}
+
+/* ✅ Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(34, 34, 34, 0.85); /* ← أفتح من #0d0d0d + شفاف قليلاً */
+  backdrop-filter: blur(15px) saturate(160%); /* ← بلور واقعي + تشبع لوني */
+  -webkit-backdrop-filter: blur(15px) saturate(160%);
+  display: none;
+  flex-direction: column;
+  z-index: 999;
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Internet Explorer/Edge */
+}
+
+.lightbox.show {
+  display: flex;
+}
+
+.lightbox-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 40px 10px; /* ← بدل 20px */
+  position: relative;
+}
+
+.slideshow-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.play-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+}
+.play-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.play-button span {
+  font-size: 16px;
+  color: #fff;
+}
+
+.image-counter {
+  font-size: 15px;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 400;
+}
+
+.close-btn {
+  font-size: 30px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.lightbox-content {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  pointer-events: none; /* يسمح بالتمرير للزرار والهيدر لو حابب */
+}
+
+.lightbox-img {
+  width: auto;
+  height: auto;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 12px;
+  object-fit: contain;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 28px;           /* ← حجم أصغر */
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  background: none;
+  border: none;
+  padding: 8px;
+  transition: transform 0.2s ease, color 0.3s ease;
+  line-height: 1;
+  pointer-events: auto;
+  z-index: 10;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.lightbox-nav:hover {
+  transform: translateY(-50%) scale(1.2);
+  color: #cba96f;            /* ← لون فاخر عند التحويم */
+}
+
+.lightbox-nav.left {
+  left: 10px;
+}
+
+.lightbox-nav.right {
+  right: 10px;
+}
+
+/* ✅ Responsive Grid Layout for smaller screens */
+@media (max-width: 768px) {
+  .grid-wrapper {
+    grid-template-columns: repeat(2, 1fr); /* عمودين بدل 3 */
+    gap: 20px;
+    padding: 0 20px 40px;
+  }
+
+  @media (max-width: 500px) {
+    .grid-wrapper {
+      grid-template-columns: 1fr; /* عمود واحد للشاشات الأصغر */
+    }
+  }
+
+  header {
+    text-align: center;
+    padding-top: 80px; /* ✅ حل مشكلة تغطية النافبار للهيدر */
+  }
+
+  .about-text {
+  max-width: 100%;
+  padding: 0 10px;
+  text-align: left;
+  margin-left: 0;
+}
+
+  .section-title {
+    font-size: 28px;
+    margin-left: 0; /* ← نأكد إن Runway مش مزاحة */
+  }
+
+  .section-subtitle {
+    font-size: 14px;
+  }
+
+  .language-dropdown {
+    background-color: transparent; /* ✅ شفاف تمامًا */
+  backdrop-filter: blur(20px) saturate(160%); /* ✅ عزل بصري قوي */
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: none; /* ← نضمن مفيش ظل يبوظ النقاء */
+  }
+
+  .lightbox-img {
+    max-width: 95%;
+    max-height: 70vh;
+  }
+
+  .lightbox-header {
+    flex-direction: row;           /* ✅ نرجّعها صف أفقي */
+    align-items: center;
+    justify-content: space-between; /* ✅ توزيع متوازن */
+    padding: 20px 16px 10px;        /* ✅ padding مناسب للموبايل */
+    gap: 10px;                      /* ✅ مسافة بين العناصر */
+  }
+
+  .slideshow-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* ✅ مسافة بين زر التشغيل والعداد */
+  }
+
+  .image-counter {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+
+  .play-button {
+    width: 32px;
+    height: 32px;
+  }
+
+    .play-button svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
+
+  .lightbox-nav {
+    font-size: 24px;
+    padding: 6px;
+  }
+
+  .close-btn {
+    position: static; /* ✅ نمنع نزوله لتحت */
+    align-self: flex-end;
+  }
+
+  footer {
+  padding: 16px 10px;
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.6;
+  width: 100%;
+}
+}
+
+/* ✅ Footer */
+footer {
+  width: 100vw;            /* ← بعرض الشاشة بالكامل */
+  text-align: center;
+  padding: 20px 0;         /* ← تقليل البادينج قليلاً */
+  color: #999;
+  font-size: 14px;
+  background-color: transparent;
+  margin-top: auto;
+}
