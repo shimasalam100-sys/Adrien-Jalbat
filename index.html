@@ -539,6 +539,7 @@
   async function loadFollowersFromRemote() {
     try {
       const response = await fetch(`${SUPABASE_URL}/rest/v1/followers?id=eq.1&select=count`, {
+        cache: 'no-store',
         headers: {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -611,23 +612,23 @@
       ? { count: followersState.count + 1, isFollowing: true }
       : { count: Math.max(0, followersState.count - 1), isFollowing: false };
 
+    const synced = await updateFollowersInRemote(nextState.count);
+    if (!synced) {
+      authMessage.textContent = 'Could not save the follower count. Please try again.';
+      return;
+    }
+
     const { error: userError } = await supabaseClient.auth.updateUser({
       data: { is_following: nextState.isFollowing },
     });
 
     if (userError) {
-      console.error('Could not save follow status:', userError);
-      return;
+      console.warn('Follow count saved, but account follow status could not be saved:', userError);
     }
 
     followersState = nextState;
     saveLocalFollowersState(followersState);
     renderFollowers(followersState);
-
-    const synced = await updateFollowersInRemote(nextState.count);
-    if (!synced) {
-      saveLocalFollowersState(followersState);
-    }
   }
 
   followersToggleBtn.addEventListener('click', async () => {
