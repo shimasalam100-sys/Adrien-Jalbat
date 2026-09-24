@@ -353,6 +353,18 @@
   </div>
 </section>
 
+<div id="portfolioChoiceBackdrop" class="portfolio-choice-backdrop" aria-hidden="true"></div>
+<div id="portfolioChoiceModal" class="portfolio-choice-modal" role="dialog" aria-modal="true" aria-labelledby="portfolioChoiceTitle" aria-hidden="true">
+  <button type="button" class="portfolio-choice-close" aria-label="Close">&times;</button>
+  <p class="portfolio-choice-eyebrow">Portfolio</p>
+  <h2 id="portfolioChoiceTitle">Choose a collection</h2>
+  <p class="portfolio-choice-text">Which collection would you like to explore?</p>
+  <div class="portfolio-choice-actions">
+    <a href="Portfolio pages/Fashion page/index.html">Fashion</a>
+    <a href="Portfolio pages/My Designs page/index.html">My Designs</a>
+  </div>
+</div>
+
 
 <div class="aura-layout">
   <div class="aura-image">
@@ -1008,6 +1020,9 @@ lightboxUpdateDots(0);
   document.addEventListener("DOMContentLoaded", () => {
     const filterButtons = document.querySelectorAll(".filter-btn");
     const loadMoreLink = document.getElementById("load-more-link");
+    const portfolioChoiceModal = document.getElementById("portfolioChoiceModal");
+    const portfolioChoiceBackdrop = document.getElementById("portfolioChoiceBackdrop");
+    let currentFilter = "all";
 
     const filterLinks = {
       all: "#",
@@ -1018,11 +1033,31 @@ lightboxUpdateDots(0);
     filterButtons.forEach(button => {
       button.addEventListener("click", () => {
         const filter = button.getAttribute("data-filter");
+        currentFilter = filter;
         loadMoreLink.setAttribute("href", filterLinks[filter] || "#");
       });
     });
 
     loadMoreLink.setAttribute("href", filterLinks.all);
+
+    const closePortfolioChoice = () => {
+      portfolioChoiceModal.classList.remove("is-visible");
+      portfolioChoiceBackdrop.classList.remove("is-visible");
+      portfolioChoiceModal.setAttribute("aria-hidden", "true");
+      portfolioChoiceBackdrop.setAttribute("aria-hidden", "true");
+    };
+
+    loadMoreLink.addEventListener("click", (event) => {
+      if (currentFilter !== "all") return;
+      event.preventDefault();
+      portfolioChoiceModal.classList.add("is-visible");
+      portfolioChoiceBackdrop.classList.add("is-visible");
+      portfolioChoiceModal.setAttribute("aria-hidden", "false");
+      portfolioChoiceBackdrop.setAttribute("aria-hidden", "false");
+    });
+
+    portfolioChoiceModal.querySelector(".portfolio-choice-close").addEventListener("click", closePortfolioChoice);
+    portfolioChoiceBackdrop.addEventListener("click", closePortfolioChoice);
   });
 </script>
 </body>

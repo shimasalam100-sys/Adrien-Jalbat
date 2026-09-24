@@ -1145,6 +1145,109 @@ width: 92vw;
 .load-more-box a:hover {
   color: white; /* ← وعند التحويم يصبح أبيض */
 }
+
+.portfolio-choice-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.portfolio-choice-backdrop.is-visible {
+  display: block;
+}
+
+.portfolio-choice-modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 31;
+  width: min(420px, calc(100% - 32px));
+  padding: 30px 24px 24px;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(203, 169, 111, 0.55);
+  background: rgba(20, 20, 20, 0.96);
+  color: white;
+  text-align: center;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.5);
+}
+
+.portfolio-choice-modal.is-visible {
+  display: block;
+  animation: portfolio-choice-in 0.3s ease-out;
+}
+
+.portfolio-choice-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.portfolio-choice-eyebrow {
+  margin: 0 0 6px;
+  color: #bbb;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.portfolio-choice-modal h2 {
+  margin: 0;
+  color: var(--gold);
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+}
+
+.portfolio-choice-text {
+  margin: 10px 0 22px;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+}
+
+.portfolio-choice-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.portfolio-choice-actions a {
+  min-width: 108px;
+  padding: 10px 14px;
+  border: 1px solid rgba(203, 169, 111, 0.65);
+  color: var(--gold);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.portfolio-choice-actions a:hover {
+  background: var(--gold);
+  color: #161616;
+}
+
+@keyframes portfolio-choice-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% - 12px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
 /*/////////*/
 
 /*.about-section {
