@@ -29,7 +29,6 @@
         <input type="email" name="email" placeholder="Email" required />
         <textarea name="message" rows="5" placeholder="Your Message" required class="message-box"></textarea>
         <button type="submit" class="submit-btn">Submit</button>
-        <p id="formStatus" class="form-status" role="status" aria-live="polite"></p>
       </form>
     </div>
     <div class="image-section">
@@ -38,6 +37,14 @@
   </div>
 </div>
 </main>
+
+  <div id="formStatus" class="form-status" role="status" aria-live="polite">
+    <div class="form-status-content">
+      <strong class="form-status-title">Message sent</strong>
+      <span class="form-status-text"></span>
+    </div>
+    <button type="button" class="form-status-close" aria-label="Close message">OK</button>
+  </div>
 
   <footer class="footer">
     © Adrien Jalbat 2025–<span id="year"></span>. All rights reserved.
