@@ -4,6 +4,7 @@ document.getElementById("contactForm").addEventListener("submit", async (e) => {
   const form = e.target;
   const submitButton = form.querySelector('button[type="submit"]');
   const formStatus = document.getElementById("formStatus");
+  const formStatusBackdrop = document.getElementById("formStatusBackdrop");
   const formStatusMessage = formStatus.querySelector(".form-status-message");
   const formData = new FormData(form);
   formData.set("_subject", "New contact message from Adrien Jalbat website");
@@ -31,13 +32,13 @@ document.getElementById("contactForm").addEventListener("submit", async (e) => {
 
     formStatusMessage.textContent = "Your message was sent successfully. Thank you for reaching out. We’ll get back to you as soon as possible.";
     formStatus.classList.add("is-visible");
-    formStatusTimeout = setTimeout(closeFormStatus, 7000);
+    formStatusBackdrop.classList.add("is-visible");
     form.reset();
   } catch (error) {
     console.error("Contact form error:", error);
     formStatusMessage.textContent = "We couldn’t send your message right now. Please try again in a moment.";
     formStatus.classList.add("is-visible", "is-error");
-    formStatusTimeout = setTimeout(closeFormStatus, 7000);
+    formStatusBackdrop.classList.add("is-visible");
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Submit";
@@ -45,10 +46,10 @@ document.getElementById("contactForm").addEventListener("submit", async (e) => {
 });
 
 const formStatus = document.getElementById("formStatus");
-let formStatusTimeout;
+const formStatusBackdrop = document.getElementById("formStatusBackdrop");
 const closeFormStatus = () => {
-  clearTimeout(formStatusTimeout);
   formStatus.classList.remove("is-visible");
+  formStatusBackdrop.classList.remove("is-visible");
 };
 formStatus.querySelector(".form-status-close").addEventListener("click", closeFormStatus);
 formStatus.querySelector(".form-status-ok").addEventListener("click", closeFormStatus);

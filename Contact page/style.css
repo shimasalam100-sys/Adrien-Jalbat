@@ -114,9 +114,9 @@ textarea::placeholder {
 .form-status {
   display: none;
   position: fixed;
-  top: 28px;
+  top: 50%;
   left: 50%;
-  z-index: 10;
+  z-index: 21;
   width: min(420px, calc(100% - 32px));
   box-sizing: border-box;
   padding: 22px 48px 18px 20px;
@@ -128,7 +128,7 @@ textarea::placeholder {
   font-size: 14px;
   line-height: 1.6;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-  transform: translate(-50%, -24px);
+  transform: translate(-50%, calc(-50% - 24px));
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.35s ease, transform 0.35s ease;
@@ -136,9 +136,23 @@ textarea::placeholder {
 
 .form-status.is-visible {
   display: block;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -50%);
   opacity: 1;
   pointer-events: auto;
+}
+
+.form-status-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.form-status-backdrop.is-visible {
+  display: block;
 }
 
 .form-status-message {
