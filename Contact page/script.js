@@ -3,6 +3,7 @@ document.getElementById("contactForm").addEventListener("submit", async (e) => {
 
   const form = e.target;
   const submitButton = form.querySelector('button[type="submit"]');
+  const formStatus = document.getElementById("formStatus");
   const formData = new FormData(form);
   formData.set("_subject", "New contact message from Adrien Jalbat website");
   formData.set("_replyto", form.email.value);
@@ -11,6 +12,8 @@ document.getElementById("contactForm").addEventListener("submit", async (e) => {
 
   submitButton.disabled = true;
   submitButton.textContent = "Sending...";
+  formStatus.className = "form-status";
+  formStatus.textContent = "";
 
   try {
     const response = await fetch("https://formsubmit.co/ajax/ronald50844@gmail.com", {
@@ -25,11 +28,13 @@ document.getElementById("contactForm").addEventListener("submit", async (e) => {
       throw new Error(`Message sending failed: ${response.status}`);
     }
 
-    alert("Your message was sent successfully.");
+    formStatus.textContent = "Your message was sent successfully. Thank you for reaching out. We’ll get back to you as soon as possible.";
+    formStatus.classList.add("is-visible");
     form.reset();
   } catch (error) {
     console.error("Contact form error:", error);
-    alert("The message could not be sent. Please try again later.");
+    formStatus.textContent = "We couldn’t send your message right now. Please try again in a moment.";
+    formStatus.classList.add("is-visible", "is-error");
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Submit";

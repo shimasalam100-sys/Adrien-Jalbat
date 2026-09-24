@@ -111,6 +111,40 @@ textarea::placeholder {
   background-color: #cba96f;
 }
 
+.form-status {
+  display: none;
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-left: 3px solid #cba96f;
+  background: rgba(203, 169, 111, 0.12);
+  color: #e4d1b0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  animation: form-status-in 0.35s ease-out;
+}
+
+.form-status.is-visible {
+  display: block;
+}
+
+.form-status.is-error {
+  border-left-color: #b96d6d;
+  background: rgba(185, 109, 109, 0.12);
+  color: #e6b5b5;
+}
+
+@keyframes form-status-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .image-section {
   flex: 1;
   padding: 20px;
