@@ -1,18 +1,37 @@
-document.getElementById("contactForm").addEventListener("submit", (e) => {
+document.getElementById("contactForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const form = e.target;
-  const formData = {
-    firstName: form.firstName.value,
-    lastName: form.lastName.value,
-    email: form.email.value,
-    message: form.message.value,
-  };
+  const submitButton = form.querySelector('button[type="submit"]');
+  const formData = new FormData(form);
+  formData.append("_subject", "New contact message from Adrien Jalbat website");
+  formData.append("_captcha", "false");
 
-  console.log("Form Submitted:", formData);
+  submitButton.disabled = true;
+  submitButton.textContent = "Sending...";
 
-  alert("Form submitted! (Not connected to server yet)");
-  form.reset();
+  try {
+    const response = await fetch("https://formsubmit.co/ajax/ronald50844@gmail.com", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Message sending failed: ${response.status}`);
+    }
+
+    alert("Your message was sent successfully.");
+    form.reset();
+  } catch (error) {
+    console.error("Contact form error:", error);
+    alert("The message could not be sent. Please try again later.");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Submit";
+  }
 });
 // تحديث السنة تلقائيًا
   const yearSpan = document.getElementById("year");
