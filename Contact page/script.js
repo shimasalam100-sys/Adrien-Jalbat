@@ -4,8 +4,10 @@ document.getElementById("contactForm").addEventListener("submit", async (e) => {
   const form = e.target;
   const submitButton = form.querySelector('button[type="submit"]');
   const formData = new FormData(form);
-  formData.append("_subject", "New contact message from Adrien Jalbat website");
-  formData.append("_captcha", "false");
+  formData.set("_subject", "New contact message from Adrien Jalbat website");
+  formData.set("_replyto", form.email.value);
+  formData.set("_template", "table");
+  formData.set("_captcha", "false");
 
   submitButton.disabled = true;
   submitButton.textContent = "Sending...";
