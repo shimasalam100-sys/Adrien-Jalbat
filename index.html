@@ -338,6 +338,9 @@
     <div class="portfolio-item" data-tag="designs">
       <img src="Portfolio pages/My Designs page/images/2.jpg" alt="My Designs portfolio image">
     </div>
+    <div class="portfolio-item" data-tag="fashion">
+      <img src="Portfolio pages/Fashion page/images/3.png" alt="Fashion portfolio image">
+    </div>
 
     <!-- ✅ خانة Load More -->
     <div class="filter-box load-more-box">
@@ -973,7 +976,7 @@ lightboxUpdateDots(0);
       const source = filter === "all"
         ? [...imageSources.fashion, ...imageSources.designs]
         : imageSources[filter];
-      return shuffle(source).slice(0, portfolioItems.length);
+      return shuffle(source).slice(0, 5);
     };
 
     function renderPortfolioImages(filter) {
