@@ -28,12 +28,7 @@ html, body {
 
 .form-section {
   flex: 1;
-  position: fixed;
-  top: 28px;
-  right: 28px;
-  z-index: 100;
-  width: min(420px, calc(100vw - 40px));
-  box-sizing: border-box;
+  padding: 20px 40px;
 }
 
 .section-header {
@@ -42,14 +37,10 @@ html, body {
   margin-bottom: 5px;
 }
 
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
 .section-subtitle {
   font-weight: 300;
   font-size: 16px;
-  display: flex;
+  color: #bbb;
   margin-right: 10px;
   margin-bottom: 0px;
   font-family: 'Montserrat', sans-serif;
@@ -122,75 +113,65 @@ textarea::placeholder {
 
 .form-status {
   display: none;
-  margin: 18px 0 0;
-  padding: 14px 16px;
+  position: fixed;
+  top: 28px;
+  left: 50%;
+  z-index: 10;
+  width: min(420px, calc(100% - 32px));
+  box-sizing: border-box;
+  padding: 22px 48px 18px 20px;
   border-left: 3px solid #cba96f;
   background: rgba(203, 169, 111, 0.12);
+  backdrop-filter: blur(12px);
   color: #e4d1b0;
   font-family: 'Montserrat', sans-serif;
   font-size: 14px;
   line-height: 1.6;
-  animation: form-status-in 0.35s ease-out;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  transform: translate(-50%, -24px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .form-status.is-visible {
   display: block;
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.form-status-message {
+  margin: 0;
+}
+
+.form-status-close {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  border: 0;
+  background: transparent;
+  color: currentColor;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.form-status-ok {
+  margin-top: 14px;
+  padding: 6px 16px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: currentColor;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
 }
 
 .form-status.is-error {
   border-left-color: #b96d6d;
   background: rgba(185, 109, 109, 0.12);
   color: #e6b5b5;
-}
-
-.form-status-content {
-  display: grid;
-  gap: 2px;
-}
-
-.form-status-title {
-  color: #cba96f;
-  font-family: 'Playfair Display', serif;
-  font-size: 16px;
-}
-
-.form-status-text {
-  color: inherit;
-}
-
-.form-status-close {
-  flex-shrink: 0;
-  padding: 6px 10px;
-  border: 1px solid rgba(203, 169, 111, 0.55);
-  background: transparent;
-  color: #cba96f;
-  cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.form-status-close:hover {
-  background: rgba(203, 169, 111, 0.14);
-}
-
-@keyframes form-status-in {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 768px) {
-  .form-status {
-    top: 18px;
-    right: 20px;
-    width: calc(100vw - 40px);
-  }
 }
 
 .image-section {

@@ -1,26 +1,10 @@
-const formStatus = document.getElementById("formStatus");
-const formStatusClose = formStatus.querySelector(".form-status-close");
-let formStatusTimer;
-
-function hideFormStatus() {
-  formStatus.classList.remove("is-visible");
-}
-
-function showFormStatus() {
-  formStatus.classList.add("is-visible");
-  clearTimeout(formStatusTimer);
-  formStatusTimer = setTimeout(hideFormStatus, 7000);
-}
-
-formStatusClose.addEventListener("click", hideFormStatus);
-
 document.getElementById("contactForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const form = e.target;
   const submitButton = form.querySelector('button[type="submit"]');
   const formStatus = document.getElementById("formStatus");
-  const formStatusText = formStatus.querySelector(".form-status-text");
+  const formStatusMessage = formStatus.querySelector(".form-status-message");
   const formData = new FormData(form);
   formData.set("_subject", "New contact message from Adrien Jalbat website");
   formData.set("_replyto", form.email.value);
@@ -30,7 +14,7 @@ document.getElementById("contactForm").addEventListener("submit", async (e) => {
   submitButton.disabled = true;
   submitButton.textContent = "Sending...";
   formStatus.className = "form-status";
-  formStatusText.textContent = "";
+  formStatusMessage.textContent = "";
 
   try {
     const response = await fetch("https://formsubmit.co/ajax/ronald50844@gmail.com", {
@@ -45,21 +29,29 @@ document.getElementById("contactForm").addEventListener("submit", async (e) => {
       throw new Error(`Message sending failed: ${response.status}`);
     }
 
-    formStatusText.textContent = "Your message was sent successfully. Thank you for reaching out. We’ll get back to you as soon as possible.";
-    formStatus.querySelector(".form-status-title").textContent = "Message sent";
-    showFormStatus();
+    formStatusMessage.textContent = "Your message was sent successfully. Thank you for reaching out. We’ll get back to you as soon as possible.";
+    formStatus.classList.add("is-visible");
+    formStatusTimeout = setTimeout(closeFormStatus, 7000);
     form.reset();
   } catch (error) {
     console.error("Contact form error:", error);
-    formStatus.querySelector(".form-status-title").textContent = "Message not sent";
-    formStatusText.textContent = "We couldn’t send your message right now. Please try again in a moment.";
-    showFormStatus();
+    formStatusMessage.textContent = "We couldn’t send your message right now. Please try again in a moment.";
+    formStatus.classList.add("is-visible", "is-error");
+    formStatusTimeout = setTimeout(closeFormStatus, 7000);
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Submit";
   }
 });
 
+const formStatus = document.getElementById("formStatus");
+let formStatusTimeout;
+const closeFormStatus = () => {
+  clearTimeout(formStatusTimeout);
+  formStatus.classList.remove("is-visible");
+};
+formStatus.querySelector(".form-status-close").addEventListener("click", closeFormStatus);
+formStatus.querySelector(".form-status-ok").addEventListener("click", closeFormStatus);
 // تحديث السنة تلقائيًا
   const yearSpan = document.getElementById("year");
   if (yearSpan) {
