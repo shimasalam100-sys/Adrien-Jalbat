@@ -509,6 +509,44 @@
     authModal.setAttribute('aria-hidden', 'true');
   }
 
+  async function hashEmail(email) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const encodedEmail = new TextEncoder().encode(normalizedEmail);
+    const digest = await crypto.subtle.digest('SHA-256', encodedEmail);
+    return Array.from(new Uint8Array(digest))
+      .map(byte => byte.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  async function isEmailAlreadyFollowing(email) {
+    const emailHash = await hashEmail(email);
+    const { data, error } = await supabaseClient.rpc('check_follower_subscription', {
+      p_email_hash: emailHash,
+    });
+
+    if (error) throw error;
+    return data === true;
+  }
+
+  async function registerFollowerEmail(email) {
+    const emailHash = await hashEmail(email);
+    const { data, error } = await supabaseClient.rpc('register_follower_subscription', {
+      p_email_hash: emailHash,
+    });
+
+    if (error) throw error;
+
+    const result = typeof data === 'string' ? JSON.parse(data) : data;
+    localStorage.setItem(FOLLOWER_EMAIL_KEY, email.trim().toLowerCase());
+    followersState = {
+      count: Number(result.count),
+      isFollowing: true,
+    };
+    saveLocalFollowersState(followersState);
+    renderFollowers(followersState);
+    return result.already_following === true;
+  }
+
   function showAlreadyFollowingMessage() {
     openAuthModal();
     authMessage.textContent = 'You are already following Adrien Jalbat.';
@@ -600,30 +638,15 @@
   let followersState = defaultFollowersState;
 
   async function initFollowers() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    currentUser = session?.user ?? null;
     followersState = await loadFollowersFromRemote();
-    if (!currentUser) saveLocalFollowersState(followersState);
-    renderFollowers(followersState);
-
-    if (currentUser && localStorage.getItem(PENDING_FOLLOW_KEY) === 'true') {
-      localStorage.removeItem(PENDING_FOLLOW_KEY);
-      await followOrUnfollow();
+    const savedEmail = localStorage.getItem(FOLLOWER_EMAIL_KEY);
+    if (savedEmail) {
+      try {
+        followersState.isFollowing = await isEmailAlreadyFollowing(savedEmail);
+      } catch (error) {
+        console.warn('Could not check saved subscription:', error);
+      }
     }
-  }
-
-  async function followOrUnfollow() {
-    const nextState = !followersState.isFollowing
-      ? { count: followersState.count + 1, isFollowing: true }
-      : { count: Math.max(0, followersState.count - 1), isFollowing: false };
-
-    const synced = await updateFollowersInRemote(nextState.count);
-    if (!synced) {
-      authMessage.textContent = 'Could not save the follower count. Please try again.';
-      return;
-    }
-
-    followersState = nextState;
     saveLocalFollowersState(followersState);
     renderFollowers(followersState);
   }
@@ -635,12 +658,17 @@
     }
 
     if (!currentUser) {
-      localStorage.setItem(PENDING_FOLLOW_KEY, 'true');
       openAuthModal();
       return;
     }
 
-    await followOrUnfollow();
+    try {
+      const alreadyFollowing = await registerFollowerEmail(currentUser.email);
+      if (alreadyFollowing) showAlreadyFollowingMessage();
+    } catch (error) {
+      console.error('Could not register follower:', error);
+      authMessage.textContent = 'Could not save your subscription. Please try again.';
+    }
   });
 
   authModalClose.addEventListener('click', closeAuthModal);
@@ -654,18 +682,16 @@
     authMessage.textContent = 'Please wait...';
 
     const email = authEmail.value.trim();
-    localStorage.setItem(FOLLOWER_EMAIL_KEY, email);
-    currentUser = { email };
-
-    if (followersState.isFollowing) {
-      showAlreadyFollowingMessage();
+    try {
+      const alreadyFollowing = await registerFollowerEmail(email);
+      closeAuthModal();
+      if (alreadyFollowing) showAlreadyFollowingMessage();
+    } catch (error) {
+      console.error('Could not register follower:', error);
+      authMessage.textContent = 'Could not save your subscription. Please try again.';
+    } finally {
       authSubmit.disabled = false;
-      return;
     }
-
-    closeAuthModal();
-    await followOrUnfollow();
-    authSubmit.disabled = false;
   });
 
   existingSubscriptionBtn.addEventListener('click', async () => {
@@ -676,16 +702,14 @@
       return;
     }
 
-    localStorage.setItem(FOLLOWER_EMAIL_KEY, email);
-    currentUser = { email };
-
-    if (followersState.isFollowing) {
-      showAlreadyFollowingMessage();
-      return;
+    try {
+      const alreadyFollowing = await registerFollowerEmail(email);
+      closeAuthModal();
+      if (alreadyFollowing) showAlreadyFollowingMessage();
+    } catch (error) {
+      console.error('Could not restore subscription:', error);
+      authMessage.textContent = 'Could not find your subscription. Please try again.';
     }
-
-    closeAuthModal();
-    await followOrUnfollow();
   });
 
   initFollowers();
