@@ -689,31 +689,37 @@
 
   followersToggleBtn.addEventListener('click', async () => {
     if (followersState.isFollowing) {
-      if (currentUser?.email) {
+      const activeEmail = currentUser?.email || localStorage.getItem(FOLLOWER_EMAIL_KEY);
+      if (activeEmail) {
         followersToggleBtn.disabled = true;
         try {
-          await unregisterFollowerEmail(currentUser.email);
+          currentUser = { email: activeEmail };
+          await unregisterFollowerEmail(activeEmail);
           isUnsubscribeMode = false;
         } catch (error) {
           console.error('Could not unsubscribe:', error);
-          isUnsubscribeMode = true;
-          openAuthModal();
-          authMessage.textContent = 'Could not update your subscription. Please try again.';
+          authMessage.textContent = 'Could not update your subscription. Please run the latest Supabase SQL setup and try again.';
         } finally {
           followersToggleBtn.disabled = false;
         }
       }
       return;
     }
-
+        authMessage.textContent = 'Enter your Gmail to restore your subscription.';
     if (!currentUser) {
       isUnsubscribeMode = false;
       openAuthModal();
       return;
     }
 
-    const alreadyFollowing = await registerFollowerEmail(currentUser.email);
-    if (alreadyFollowing) showAlreadyFollowingMessage();
+    try {
+      await registerFollowerEmail(currentUser.email);
+      closeAuthModal();
+    } catch (error) {
+      console.error('Could not register follower:', error);
+      openAuthModal();
+      authMessage.textContent = 'Could not save your subscription. Please try again.';
+    }
   });
 
   authModalClose.addEventListener('click', closeAuthModal);
