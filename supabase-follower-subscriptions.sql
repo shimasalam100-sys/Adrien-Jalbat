@@ -54,3 +54,38 @@ $$;
 
 grant execute on function public.check_follower_subscription(text) to anon, authenticated;
 grant execute on function public.register_follower_subscription(text) to anon, authenticated;
+
+create or replace function public.remove_follower_subscription(p_email_hash text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  was_deleted boolean;
+  current_count integer;
+begin
+  delete from public.follower_subscriptions
+  where email_hash = p_email_hash;
+
+  was_deleted := found;
+
+  if was_deleted then
+    update public.followers
+    set count = greatest(count - 1, 0)
+    where id = 1
+    returning count into current_count;
+  else
+    select count into current_count
+    from public.followers
+    where id = 1;
+  end if;
+
+  return jsonb_build_object(
+    'was_following', was_deleted,
+    'count', coalesce(current_count, 1003)
+  );
+end;
+$$;
+
+grant execute on function public.remove_follower_subscription(text) to anon, authenticated;

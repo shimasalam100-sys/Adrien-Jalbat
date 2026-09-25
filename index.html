@@ -547,6 +547,24 @@
     return result.already_following === true;
   }
 
+  async function removeFollowerEmail(email) {
+    const emailHash = await hashEmail(email);
+    const { data, error } = await supabaseClient.rpc('remove_follower_subscription', {
+      p_email_hash: emailHash,
+    });
+
+    if (error) throw error;
+
+    const result = typeof data === 'string' ? JSON.parse(data) : data;
+    followersState = {
+      count: Number(result.count),
+      isFollowing: false,
+    };
+    localStorage.removeItem(FOLLOWER_EMAIL_KEY);
+    saveLocalFollowersState(followersState);
+    renderFollowers(followersState);
+  }
+
   function showAlreadyFollowingMessage() {
     openAuthModal();
     authMessage.textContent = 'You are already following Adrien Jalbat.';
@@ -653,7 +671,19 @@
 
   followersToggleBtn.addEventListener('click', async () => {
     if (followersState.isFollowing) {
-      showAlreadyFollowingMessage();
+      const savedEmail = localStorage.getItem(FOLLOWER_EMAIL_KEY);
+      if (!savedEmail) {
+        showAlreadyFollowingMessage();
+        return;
+      }
+
+      try {
+        await removeFollowerEmail(savedEmail);
+      } catch (error) {
+        console.error('Could not remove follower:', error);
+        showAlreadyFollowingMessage();
+        authMessage.textContent = 'Could not update your subscription. Please try again.';
+      }
       return;
     }
 
