@@ -509,6 +509,11 @@
     authModal.setAttribute('aria-hidden', 'true');
   }
 
+  function showAlreadyFollowingMessage() {
+    openAuthModal();
+    authMessage.textContent = 'You are already following Adrien Jalbat. Your subscription is active on this device.';
+  }
+
   async function ensureRemoteFollowersRow() {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/followers?id=eq.1&select=count`, {
       headers: {
@@ -624,6 +629,11 @@
   }
 
   followersToggleBtn.addEventListener('click', async () => {
+    if (followersState.isFollowing) {
+      showAlreadyFollowingMessage();
+      return;
+    }
+
     if (!currentUser) {
       localStorage.setItem(PENDING_FOLLOW_KEY, 'true');
       openAuthModal();
@@ -646,6 +656,13 @@
     const email = authEmail.value.trim();
     localStorage.setItem(FOLLOWER_EMAIL_KEY, email);
     currentUser = { email };
+
+    if (followersState.isFollowing) {
+      showAlreadyFollowingMessage();
+      authSubmit.disabled = false;
+      return;
+    }
+
     closeAuthModal();
     await followOrUnfollow();
     authSubmit.disabled = false;
@@ -661,6 +678,12 @@
 
     localStorage.setItem(FOLLOWER_EMAIL_KEY, email);
     currentUser = { email };
+
+    if (followersState.isFollowing) {
+      showAlreadyFollowingMessage();
+      return;
+    }
+
     closeAuthModal();
     await followOrUnfollow();
   });
