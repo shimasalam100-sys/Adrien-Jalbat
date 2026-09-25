@@ -545,6 +545,7 @@
     if (error) throw error;
 
     const result = typeof data === 'string' ? JSON.parse(data) : data;
+    localStorage.setItem(FOLLOWER_EMAIL_KEY, email.trim().toLowerCase());
     followersState = {
       count: Number(result.count),
       isFollowing: true,
@@ -552,6 +553,17 @@
     saveLocalFollowersState(followersState);
     renderFollowers(followersState);
     return result.already_following === true;
+  }
+
+  async function sendSignInLink(email) {
+    const { error } = await supabaseClient.auth.signInWithOtp({
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: window.location.href },
+    });
+
+    if (error) throw error;
+    localStorage.setItem(PENDING_FOLLOW_KEY, 'true');
+    authMessage.textContent = 'Check your Gmail and click the secure link. You will return here automatically.';
   }
 
   async function unregisterFollowerEmail(email) {
@@ -583,6 +595,7 @@
     isUnsubscribeMode = true;
     openAuthModal();
     authMessage.textContent = 'This Gmail is already following Adrien Jalbat. Would you like to unsubscribe?';
+    existingSubscriptionBtn.textContent = 'Unsubscribe';
   }
 
   async function ensureRemoteFollowersRow() {
@@ -626,9 +639,13 @@
 
       const data = await response.json();
       if (Array.isArray(data) && data.length > 0 && typeof data[0].count === 'number') {
+        const localFollowState = getLocalFollowersState();
+        const savedFollowState = currentUser?.user_metadata?.is_following;
         return {
           count: data[0].count,
-          isFollowing: false,
+          isFollowing: typeof savedFollowState === 'boolean'
+            ? savedFollowState
+            : localFollowState.isFollowing,
         };
       }
 
@@ -680,11 +697,11 @@
     saveLocalFollowersState(followersState);
     renderFollowers(followersState);
 
-    if (currentUser && localStorage.getItem(PENDING_FOLLOW_KEY) === 'true') {
+    if (currentUser?.email && localStorage.getItem(PENDING_FOLLOW_KEY) === 'true') {
       localStorage.removeItem(PENDING_FOLLOW_KEY);
       const alreadyFollowing = await registerFollowerEmail(currentUser.email);
+      closeAuthModal();
       if (alreadyFollowing) showAlreadyFollowingMessage();
-      else closeAuthModal();
     }
   }
 
@@ -694,6 +711,7 @@
         followersToggleBtn.disabled = true;
         try {
           await unregisterFollowerEmail(currentUser.email);
+          isUnsubscribeMode = false;
         } catch (error) {
           console.error('Could not unsubscribe:', error);
           isUnsubscribeMode = true;
@@ -702,48 +720,24 @@
         } finally {
           followersToggleBtn.disabled = false;
         }
-      } else {
-        isUnsubscribeMode = true;
-        openAuthModal();
-        authMessage.textContent = 'Enter the same Gmail to manage your subscription.';
       }
       return;
     }
 
-    if (currentUser?.email) {
-      try {
-        const alreadyFollowing = await registerFollowerEmail(currentUser.email);
-        if (alreadyFollowing) showAlreadyFollowingMessage();
-      } catch (error) {
-        console.error('Could not register follower:', error);
-        authMessage.textContent = 'Could not save your subscription. Please try again.';
-      }
+    if (!currentUser) {
+      isUnsubscribeMode = false;
+      openAuthModal();
       return;
     }
 
-    isUnsubscribeMode = false;
-    localStorage.setItem(PENDING_FOLLOW_KEY, 'true');
-    openAuthModal();
+    const alreadyFollowing = await registerFollowerEmail(currentUser.email);
+    if (alreadyFollowing) showAlreadyFollowingMessage();
   });
 
   authModalClose.addEventListener('click', closeAuthModal);
   authModal.addEventListener('click', (event) => {
     if (event.target === authModal) closeAuthModal();
   });
-
-  async function sendMagicLink(email) {
-    localStorage.setItem(PENDING_FOLLOW_KEY, 'true');
-    const { error } = await supabaseClient.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: window.location.href,
-      },
-    });
-
-    if (error) throw error;
-    authMessage.textContent = 'Check your Gmail and click the secure link. We will return you to the page and complete your follow.';
-  }
 
   authForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -752,41 +746,36 @@
 
     const email = authEmail.value.trim();
     try {
-      await sendMagicLink(email);
+      isUnsubscribeMode = false;
+      await sendSignInLink(email);
     } catch (error) {
-      console.error('Could not register follower:', error);
-      authMessage.textContent = error.message || 'Could not send the sign-in email. Please try again.';
+      console.error('Could not send sign-in link:', error);
+      authMessage.textContent = 'Could not send the email. Please try again.';
     } finally {
       authSubmit.disabled = false;
     }
   });
 
   existingSubscriptionBtn.addEventListener('click', async () => {
-    const email = authEmail.value.trim();
+    const email = authEmail.value.trim() || currentUser?.email || '';
     if (!email) {
-      if (isUnsubscribeMode && currentUser?.email) {
-        authEmail.value = currentUser.email;
-      } else {
-        authMessage.textContent = 'Enter your Gmail first to receive the sign-in link.';
-        authEmail.focus();
-        return;
-      }
+      authMessage.textContent = 'Enter your Gmail first to continue.';
+      authEmail.focus();
+      return;
     }
 
-    const selectedEmail = authEmail.value.trim();
-
     try {
-      if (isUnsubscribeMode) {
-        await unregisterFollowerEmail(selectedEmail);
+      if (isUnsubscribeMode && currentUser?.email) {
+        await unregisterFollowerEmail(currentUser.email);
         isUnsubscribeMode = false;
         closeAuthModal();
         return;
       }
 
-      await sendMagicLink(selectedEmail);
+      await sendSignInLink(email);
     } catch (error) {
-      console.error('Could not update subscription:', error);
-      authMessage.textContent = error.message || 'Could not complete this action. Please try again.';
+      console.error('Could not send sign-in link:', error);
+      authMessage.textContent = 'Could not send the email. Please try again.';
     }
   });
 
