@@ -55,7 +55,7 @@ $$;
 grant execute on function public.check_follower_subscription(text) to anon, authenticated;
 grant execute on function public.register_follower_subscription(text) to anon, authenticated;
 
-create or replace function public.remove_follower_subscription(p_email_hash text)
+create or replace function public.unregister_follower_subscription(p_email_hash text)
 returns jsonb
 language plpgsql
 security definer
@@ -88,4 +88,4 @@ begin
 end;
 $$;
 
-grant execute on function public.remove_follower_subscription(text) to anon, authenticated;
+grant execute on function public.unregister_follower_subscription(text) to anon, authenticated;
