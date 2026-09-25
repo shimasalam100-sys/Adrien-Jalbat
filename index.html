@@ -705,10 +705,11 @@
       }
       return;
     }
-        authMessage.textContent = 'Enter your Gmail to restore your subscription.';
+
     if (!currentUser) {
       isUnsubscribeMode = false;
       openAuthModal();
+      authMessage.textContent = 'Enter your Gmail to restore your subscription.';
       return;
     }
 
