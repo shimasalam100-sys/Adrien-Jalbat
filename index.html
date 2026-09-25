@@ -182,12 +182,14 @@
     <div id="authModal" class="auth-modal" aria-hidden="true">
       <div class="auth-modal-content" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
         <button id="authModalClose" class="auth-modal-close" type="button" aria-label="Close">&times;</button>
-        <h2 id="authModalTitle">Stay connected</h2>
-        <p id="authModalDescription">Enter your Gmail to follow every new update and stay connected with the world of Adrien Jalbat.</p>
+        <h2 id="authModalTitle">Create an account</h2>
+        <p id="authModalDescription">Create an account to follow every new update and stay connected with the world of Adrien Jalbat.</p>
         <form id="authForm">
-          <input id="authEmail" type="email" placeholder="Enter your Gmail" autocomplete="email" required />
-          <button id="authSubmit" class="auth-submit-btn" type="submit">Continue with email</button>
+          <input id="authEmail" type="email" placeholder="Gmail" autocomplete="email" required />
+          <input id="authPassword" type="password" placeholder="Password" autocomplete="new-password" minlength="6" required />
+          <button id="authSubmit" class="auth-submit-btn" type="submit">Create account</button>
         </form>
+        <button id="authModeToggle" class="auth-mode-btn" type="button">I already have an account</button>
         <p id="authMessage" class="auth-message" aria-live="polite"></p>
       </div>
     </div>
@@ -467,9 +469,14 @@
   const authModalClose = document.getElementById('authModalClose');
   const authForm = document.getElementById('authForm');
   const authEmail = document.getElementById('authEmail');
+  const authPassword = document.getElementById('authPassword');
   const authSubmit = document.getElementById('authSubmit');
+  const authModeToggle = document.getElementById('authModeToggle');
+  const authModalTitle = document.getElementById('authModalTitle');
+  const authModalDescription = document.getElementById('authModalDescription');
   const authMessage = document.getElementById('authMessage');
   let currentUser = null;
+  let isLoginMode = false;
 
   function getLocalFollowersState() {
     try {
@@ -504,6 +511,20 @@
   function closeAuthModal() {
     authModal.classList.remove('is-visible');
     authModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function setAuthMode(loginMode) {
+    isLoginMode = loginMode;
+    authModalTitle.textContent = isLoginMode ? 'Log in' : 'Create an account';
+    authModalDescription.textContent = isLoginMode
+      ? 'Log in to continue following.'
+      : 'Create an account to follow every new update and stay connected with the world of Adrien Jalbat.';
+    authSubmit.textContent = isLoginMode ? 'Log in' : 'Create account';
+    authModeToggle.textContent = isLoginMode
+      ? 'Create a new account'
+      : 'I already have an account';
+    authPassword.autocomplete = isLoginMode ? 'current-password' : 'new-password';
+    authMessage.textContent = '';
   }
 
   async function ensureRemoteFollowersRow() {
@@ -636,6 +657,7 @@
   });
 
   authModalClose.addEventListener('click', closeAuthModal);
+  authModeToggle.addEventListener('click', () => setAuthMode(!isLoginMode));
   authModal.addEventListener('click', (event) => {
     if (event.target === authModal) closeAuthModal();
   });
@@ -646,10 +668,10 @@
     authMessage.textContent = 'Please wait...';
 
     const email = authEmail.value.trim();
-    const result = await supabaseClient.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.href },
-    });
+    const password = authPassword.value;
+    const result = isLoginMode
+      ? await supabaseClient.auth.signInWithPassword({ email, password })
+      : await supabaseClient.auth.signUp({ email, password });
 
     authSubmit.disabled = false;
 
@@ -658,8 +680,9 @@
       return;
     }
 
-    authMessage.textContent = 'Check your Gmail and click the confirmation link to complete your follow.';
-    authSubmit.disabled = false;
+    currentUser = result.data.user;
+    closeAuthModal();
+    await followOrUnfollow();
   });
 
   initFollowers();
