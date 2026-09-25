@@ -183,11 +183,12 @@
       <div class="auth-modal-content" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
         <button id="authModalClose" class="auth-modal-close" type="button" aria-label="Close">&times;</button>
         <h2 id="authModalTitle">Stay connected</h2>
-        <p id="authModalDescription">Enter your Gmail to follow every new update. We will send you a secure confirmation link.</p>
+        <p id="authModalDescription">Enter your Gmail to follow every new update. Your subscription will be saved on this device.</p>
         <form id="authForm">
           <input id="authEmail" type="email" placeholder="Enter your Gmail" autocomplete="email" required />
           <button id="authSubmit" class="auth-submit-btn" type="submit">Continue with email</button>
         </form>
+        <button id="existingSubscriptionBtn" class="auth-mode-btn" type="button">I already have a subscription</button>
         <p id="authMessage" class="auth-message" aria-live="polite"></p>
       </div>
     </div>
@@ -457,6 +458,7 @@
   const SUPABASE_URL = 'https://duwwbbkwfwkyuiqsjtoh.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_uF0rmDqXvgEwSXDFSaqUZw_8ki63Ql4';
   const FOLLOWERS_STORAGE_KEY = 'adrienFollowersState';
+  const FOLLOWER_EMAIL_KEY = 'adrienFollowerEmail';
   const PENDING_FOLLOW_KEY = 'pendingFollowAfterAuth';
   const defaultFollowersState = { count: 1003, isFollowing: false };
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -468,6 +470,7 @@
   const authForm = document.getElementById('authForm');
   const authEmail = document.getElementById('authEmail');
   const authSubmit = document.getElementById('authSubmit');
+  const existingSubscriptionBtn = document.getElementById('existingSubscriptionBtn');
   const authMessage = document.getElementById('authMessage');
   let currentUser = null;
 
@@ -547,10 +550,13 @@
 
       const data = await response.json();
       if (Array.isArray(data) && data.length > 0 && typeof data[0].count === 'number') {
+        const localFollowState = getLocalFollowersState();
         const savedFollowState = currentUser?.user_metadata?.is_following;
         return {
           count: data[0].count,
-          isFollowing: typeof savedFollowState === 'boolean' ? savedFollowState : false,
+          isFollowing: typeof savedFollowState === 'boolean'
+            ? savedFollowState
+            : localFollowState.isFollowing,
         };
       }
 
@@ -612,14 +618,6 @@
       return;
     }
 
-    const { error: userError } = await supabaseClient.auth.updateUser({
-      data: { is_following: nextState.isFollowing },
-    });
-
-    if (userError) {
-      console.warn('Follow count saved, but account follow status could not be saved:', userError);
-    }
-
     followersState = nextState;
     saveLocalFollowersState(followersState);
     renderFollowers(followersState);
@@ -646,20 +644,25 @@
     authMessage.textContent = 'Please wait...';
 
     const email = authEmail.value.trim();
-    const result = await supabaseClient.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.href },
-    });
-
+    localStorage.setItem(FOLLOWER_EMAIL_KEY, email);
+    currentUser = { email };
+    closeAuthModal();
+    await followOrUnfollow();
     authSubmit.disabled = false;
+  });
 
-    if (result.error) {
-      authMessage.textContent = result.error.message;
+  existingSubscriptionBtn.addEventListener('click', async () => {
+    const email = authEmail.value.trim() || localStorage.getItem(FOLLOWER_EMAIL_KEY);
+    if (!email) {
+      authMessage.textContent = 'Enter your Gmail first to continue.';
+      authEmail.focus();
       return;
     }
 
-    authMessage.textContent = 'Check your Gmail and click the secure link to complete your follow.';
-    authSubmit.disabled = false;
+    localStorage.setItem(FOLLOWER_EMAIL_KEY, email);
+    currentUser = { email };
+    closeAuthModal();
+    await followOrUnfollow();
   });
 
   initFollowers();
