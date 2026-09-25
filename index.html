@@ -183,7 +183,7 @@
       <div class="auth-modal-content" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
         <button id="authModalClose" class="auth-modal-close" type="button" aria-label="Close">&times;</button>
         <h2 id="authModalTitle">Stay connected</h2>
-        <p id="authModalDescription">Enter your Gmail to follow every new update. We will send you a secure sign-in link.</p>
+        <p id="authModalDescription">Enter your Gmail to follow every new update. Your subscription will be saved in this browser.</p>
         <form id="authForm">
           <input id="authEmail" type="email" placeholder="Enter your Gmail" autocomplete="email" required />
           <button id="authSubmit" class="auth-submit-btn" type="submit">Create account</button>
@@ -459,7 +459,6 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_uF0rmDqXvgEwSXDFSaqUZw_8ki63Ql4';
   const FOLLOWERS_STORAGE_KEY = 'adrienFollowersState';
   const FOLLOWER_EMAIL_KEY = 'adrienFollowerEmail';
-  const PENDING_FOLLOW_KEY = 'pendingFollowAfterAuth';
   const defaultFollowersState = { count: 1003, isFollowing: false };
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -553,17 +552,6 @@
     saveLocalFollowersState(followersState);
     renderFollowers(followersState);
     return result.already_following === true;
-  }
-
-  async function sendSignInLink(email) {
-    const { error } = await supabaseClient.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      options: { emailRedirectTo: window.location.href },
-    });
-
-    if (error) throw error;
-    localStorage.setItem(PENDING_FOLLOW_KEY, 'true');
-    authMessage.textContent = 'Check your Gmail and click the secure link. You will return here automatically.';
   }
 
   async function unregisterFollowerEmail(email) {
@@ -684,12 +672,12 @@
   let followersState = defaultFollowersState;
 
   async function initFollowers() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    currentUser = session?.user ?? null;
     followersState = await loadFollowersFromRemote();
-    if (currentUser?.email) {
+    const savedEmail = localStorage.getItem(FOLLOWER_EMAIL_KEY);
+    if (savedEmail) {
+      currentUser = { email: savedEmail };
       try {
-        followersState.isFollowing = await isEmailAlreadyFollowing(currentUser.email);
+        followersState.isFollowing = await isEmailAlreadyFollowing(savedEmail);
       } catch (error) {
         console.warn('Could not check saved subscription:', error);
       }
@@ -697,12 +685,6 @@
     saveLocalFollowersState(followersState);
     renderFollowers(followersState);
 
-    if (currentUser?.email && localStorage.getItem(PENDING_FOLLOW_KEY) === 'true') {
-      localStorage.removeItem(PENDING_FOLLOW_KEY);
-      const alreadyFollowing = await registerFollowerEmail(currentUser.email);
-      closeAuthModal();
-      if (alreadyFollowing) showAlreadyFollowingMessage();
-    }
   }
 
   followersToggleBtn.addEventListener('click', async () => {
@@ -747,10 +729,21 @@
     const email = authEmail.value.trim();
     try {
       isUnsubscribeMode = false;
-      await sendSignInLink(email);
+      const alreadyFollowing = await isEmailAlreadyFollowing(email);
+      if (alreadyFollowing) {
+        authEmail.value = email;
+        authModal.classList.add('is-visible');
+        authModal.setAttribute('aria-hidden', 'false');
+        authMessage.textContent = 'This Gmail is already subscribed. Choose “I already have an account” to restore your subscription.';
+        return;
+      }
+
+      currentUser = { email };
+      await registerFollowerEmail(email);
+      closeAuthModal();
     } catch (error) {
-      console.error('Could not send sign-in link:', error);
-      authMessage.textContent = 'Could not send the email. Please try again.';
+      console.error('Could not create local account:', error);
+      authMessage.textContent = 'Could not save your subscription. Please try again.';
     } finally {
       authSubmit.disabled = false;
     }
@@ -772,10 +765,24 @@
         return;
       }
 
-      await sendSignInLink(email);
+      const alreadyFollowing = await isEmailAlreadyFollowing(email);
+      if (!alreadyFollowing) {
+        authMessage.textContent = 'No existing subscription was found. Choose “Create account” to subscribe.';
+        return;
+      }
+
+      currentUser = { email };
+      localStorage.setItem(FOLLOWER_EMAIL_KEY, email.trim().toLowerCase());
+      followersState = {
+        ...followersState,
+        isFollowing: true,
+      };
+      saveLocalFollowersState(followersState);
+      renderFollowers(followersState);
+      closeAuthModal();
     } catch (error) {
-      console.error('Could not send sign-in link:', error);
-      authMessage.textContent = 'Could not send the email. Please try again.';
+      console.error('Could not restore local account:', error);
+      authMessage.textContent = 'Could not restore your subscription. Please try again.';
     }
   });
 
