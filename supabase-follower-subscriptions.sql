@@ -89,3 +89,14 @@ end;
 $$;
 
 grant execute on function public.unregister_follower_subscription(text) to anon, authenticated;
+
+create or replace function public.remove_follower_subscription(p_email_hash text)
+returns jsonb
+language sql
+security definer
+set search_path = public
+as $$
+  select public.unregister_follower_subscription(p_email_hash);
+$$;
+
+grant execute on function public.remove_follower_subscription(text) to anon, authenticated;

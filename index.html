@@ -503,7 +503,7 @@
 
   function openAuthModal() {
     authMessage.textContent = '';
-    authEmail.value = localStorage.getItem(FOLLOWER_EMAIL_KEY) || '';
+    authEmail.value = '';
     existingSubscriptionBtn.textContent = isUnsubscribeMode
       ? 'Unsubscribe'
       : 'I already have a subscription';
@@ -557,9 +557,17 @@
 
   async function unregisterFollowerEmail(email) {
     const emailHash = await hashEmail(email);
-    const { data, error } = await supabaseClient.rpc('unregister_follower_subscription', {
+    let { data, error } = await supabaseClient.rpc('unregister_follower_subscription', {
       p_email_hash: emailHash,
     });
+
+    if (error) {
+      const fallbackResult = await supabaseClient.rpc('remove_follower_subscription', {
+        p_email_hash: emailHash,
+      });
+      data = fallbackResult.data;
+      error = fallbackResult.error;
+    }
 
     if (error) throw error;
 
@@ -727,7 +735,7 @@
   });
 
   existingSubscriptionBtn.addEventListener('click', async () => {
-    const email = authEmail.value.trim() || localStorage.getItem(FOLLOWER_EMAIL_KEY);
+    const email = authEmail.value.trim();
     if (!email) {
       authMessage.textContent = 'Enter your Gmail first to continue.';
       authEmail.focus();
