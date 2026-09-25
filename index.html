@@ -690,6 +690,7 @@
     if (followersState.isFollowing) {
       const savedEmail = currentUser?.email || localStorage.getItem(FOLLOWER_EMAIL_KEY);
       if (savedEmail) {
+        followersToggleBtn.disabled = true;
         try {
           await unregisterFollowerEmail(savedEmail);
           localStorage.removeItem(FOLLOWER_EMAIL_KEY);
@@ -697,7 +698,11 @@
           isUnsubscribeMode = false;
         } catch (error) {
           console.error('Could not unsubscribe:', error);
+          isUnsubscribeMode = true;
+          openAuthModal();
           authMessage.textContent = 'Could not update your subscription. Please try again.';
+        } finally {
+          followersToggleBtn.disabled = false;
         }
       } else {
         isUnsubscribeMode = true;
