@@ -474,6 +474,7 @@
   const authMessage = document.getElementById('authMessage');
   let currentUser = null;
   let isUnsubscribeMode = false;
+  let sessionKnown = false;
 
   function getLocalFollowersState() {
     try {
@@ -581,7 +582,6 @@
   }
 
   function showAlreadyFollowingMessage() {
-    isUnsubscribeMode = false;
     openAuthModal();
     authMessage.textContent = 'You are already following Adrien Jalbat.';
   }
@@ -676,6 +676,7 @@
     const savedEmail = localStorage.getItem(FOLLOWER_EMAIL_KEY);
     if (savedEmail) {
       currentUser = { email: savedEmail };
+      sessionKnown = true;
       try {
         followersState.isFollowing = await isEmailAlreadyFollowing(savedEmail);
       } catch (error) {
@@ -687,22 +688,23 @@
   }
 
   followersToggleBtn.addEventListener('click', async () => {
-    if (followersState.isFollowing) {
-      isUnsubscribeMode = true;
-      openAuthModal();
-      authMessage.textContent = 'You are already following Adrien Jalbat. Enter the same Gmail if you want to unsubscribe.';
-      return;
-    }
-
-    if (!currentUser) {
+    if (!sessionKnown || !currentUser) {
       isUnsubscribeMode = false;
       openAuthModal();
       return;
     }
 
     try {
-      const alreadyFollowing = await registerFollowerEmail(currentUser.email);
-      if (alreadyFollowing) showAlreadyFollowingMessage();
+      if (followersState.isFollowing) {
+        await unregisterFollowerEmail(currentUser.email);
+        localStorage.removeItem(FOLLOWER_EMAIL_KEY);
+        currentUser = null;
+        sessionKnown = false;
+        isUnsubscribeMode = false;
+        return;
+      }
+
+      await registerFollowerEmail(currentUser.email);
     } catch (error) {
       console.error('Could not register follower:', error);
       authMessage.textContent = 'Could not save your subscription. Please try again.';
@@ -723,6 +725,7 @@
     try {
       isUnsubscribeMode = false;
       currentUser = { email };
+      sessionKnown = true;
       const alreadyFollowing = await registerFollowerEmail(email);
       closeAuthModal();
       if (alreadyFollowing) showAlreadyFollowingMessage();
@@ -759,6 +762,7 @@
       }
 
       currentUser = { email };
+      sessionKnown = true;
       isUnsubscribeMode = false;
       followersState = {
         ...followersState,
@@ -767,6 +771,8 @@
       saveLocalFollowersState(followersState);
       renderFollowers(followersState);
       closeAuthModal();
+      isUnsubscribeMode = true;
+      showAlreadyFollowingMessage();
     } catch (error) {
       console.error('Could not restore subscription:', error);
       authMessage.textContent = 'Could not find your subscription. Please try again.';
