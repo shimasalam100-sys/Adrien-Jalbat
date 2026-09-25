@@ -454,7 +454,7 @@
 <script src="Home page/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
+<script type="text/legacy">
   const SUPABASE_URL = 'https://duwwbbkwfwkyuiqsjtoh.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_uF0rmDqXvgEwSXDFSaqUZw_8ki63Ql4';
   const FOLLOWERS_STORAGE_KEY = 'adrienFollowersState';
@@ -791,6 +791,190 @@
       console.error('Could not restore local account:', error);
       authMessage.textContent = 'Could not restore your subscription. Please try again.';
     }
+  });
+
+  initFollowers();
+</script>
+
+<script>
+  const SUPABASE_URL = 'https://duwwbbkwfwkyuiqsjtoh.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_uF0rmDqXvgEwSXDFSaqUZw_8ki63Ql4';
+  const FOLLOWER_SESSION_KEY = 'adrienFollowerSession';
+  const defaultFollowersState = { count: 1003, isFollowing: false };
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const followersCount = document.getElementById('followersCount');
+  const followersToggleBtn = document.getElementById('followersToggleBtn');
+  const authModal = document.getElementById('authModal');
+  const authModalClose = document.getElementById('authModalClose');
+  const authForm = document.getElementById('authForm');
+  const authEmail = document.getElementById('authEmail');
+  const authSubmit = document.getElementById('authSubmit');
+  const existingSubscriptionBtn = document.getElementById('existingSubscriptionBtn');
+  const authMessage = document.getElementById('authMessage');
+  let sessionHash = localStorage.getItem(FOLLOWER_SESSION_KEY);
+  let followersState = defaultFollowersState;
+
+  function renderFollowers(state) {
+    followersState = state;
+    followersCount.textContent = state.count;
+    followersToggleBtn.textContent = state.isFollowing ? 'Following' : 'Follow';
+    followersToggleBtn.classList.toggle('is-following', state.isFollowing);
+    localStorage.setItem('adrienFollowersState', JSON.stringify(state));
+  }
+
+  function openAuthModal(message = '') {
+    authMessage.textContent = message;
+    authEmail.value = '';
+    authModal.classList.add('is-visible');
+    authModal.setAttribute('aria-hidden', 'false');
+    authEmail.focus();
+  }
+
+  function closeAuthModal() {
+    authModal.classList.remove('is-visible');
+    authModal.setAttribute('aria-hidden', 'true');
+  }
+
+  async function hashEmail(email) {
+    const bytes = new TextEncoder().encode(email.trim().toLowerCase());
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest))
+      .map(byte => byte.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  async function callAccountFunction(name, params) {
+    const { data, error } = await supabaseClient.rpc(name, params);
+    if (error) throw error;
+    return typeof data === 'string' ? JSON.parse(data) : data;
+  }
+
+  async function getAccount(emailHash) {
+    return callAccountFunction('get_follower_account', { p_email_hash: emailHash });
+  }
+
+  async function setFollowState(emailHash, isFollowing) {
+    const result = await callAccountFunction('set_follower_state', {
+      p_email_hash: emailHash,
+      p_is_following: isFollowing,
+    });
+    renderFollowers({
+      count: Number(result.count),
+      isFollowing: result.is_following === true,
+    });
+    return result;
+  }
+
+  async function loadFollowers() {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/followers?id=eq.1&select=count`, {
+      cache: 'no-store',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    if (!response.ok) throw new Error(`Follower count read failed: ${response.status}`);
+    const data = await response.json();
+    return Array.isArray(data) && data[0] ? Number(data[0].count) : 1003;
+  }
+
+  async function initFollowers() {
+    try {
+      const count = await loadFollowers();
+      if (sessionHash) {
+        const account = await getAccount(sessionHash);
+        if (!account.registered) {
+          sessionHash = null;
+          localStorage.removeItem(FOLLOWER_SESSION_KEY);
+          renderFollowers({ count, isFollowing: false });
+          return;
+        }
+        renderFollowers({ count: Number(account.count), isFollowing: account.is_following === true });
+        return;
+      }
+      renderFollowers({ count, isFollowing: false });
+    } catch (error) {
+      console.error('Could not initialize followers:', error);
+      renderFollowers(defaultFollowersState);
+    }
+  }
+
+  followersToggleBtn.addEventListener('click', async () => {
+    if (!sessionHash) {
+      openAuthModal('Enter your Gmail to continue.');
+      return;
+    }
+
+    followersToggleBtn.disabled = true;
+    try {
+      await setFollowState(sessionHash, !followersState.isFollowing);
+    } catch (error) {
+      console.error('Could not change follower state:', error);
+      openAuthModal('Could not update your subscription. Please try again.');
+    } finally {
+      followersToggleBtn.disabled = false;
+    }
+  });
+
+  authForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    authSubmit.disabled = true;
+    authMessage.textContent = 'Please wait...';
+
+    try {
+      const emailHash = await hashEmail(authEmail.value);
+      const account = await getAccount(emailHash);
+      if (account.registered) {
+        authMessage.textContent = 'This email is already registered. Choose “I already have an account” to continue.';
+        return;
+      }
+
+      await callAccountFunction('create_follower_account', { p_email_hash: emailHash });
+      sessionHash = emailHash;
+      localStorage.setItem(FOLLOWER_SESSION_KEY, sessionHash);
+      await setFollowState(sessionHash, true);
+      closeAuthModal();
+    } catch (error) {
+      console.error('Could not create follower account:', error);
+      authMessage.textContent = 'Could not save your subscription. Please try again.';
+    } finally {
+      authSubmit.disabled = false;
+    }
+  });
+
+  existingSubscriptionBtn.addEventListener('click', async () => {
+    const email = authEmail.value.trim();
+    if (!email) {
+      authMessage.textContent = 'Enter your Gmail first.';
+      authEmail.focus();
+      return;
+    }
+
+    existingSubscriptionBtn.disabled = true;
+    try {
+      const emailHash = await hashEmail(email);
+      const account = await getAccount(emailHash);
+      if (!account.registered) {
+        authMessage.textContent = 'No account was found. Choose “Create account” to subscribe.';
+        return;
+      }
+
+      sessionHash = emailHash;
+      localStorage.setItem(FOLLOWER_SESSION_KEY, sessionHash);
+      renderFollowers({ count: Number(account.count), isFollowing: account.is_following === true });
+      closeAuthModal();
+    } catch (error) {
+      console.error('Could not restore follower account:', error);
+      authMessage.textContent = 'Could not restore your account. Please try again.';
+    } finally {
+      existingSubscriptionBtn.disabled = false;
+    }
+  });
+
+  authModalClose.addEventListener('click', closeAuthModal);
+  authModal.addEventListener('click', event => {
+    if (event.target === authModal) closeAuthModal();
   });
 
   initFollowers();
