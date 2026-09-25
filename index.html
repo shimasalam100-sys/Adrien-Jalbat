@@ -473,6 +473,7 @@
   const existingSubscriptionBtn = document.getElementById('existingSubscriptionBtn');
   const authMessage = document.getElementById('authMessage');
   let currentUser = null;
+  let isUnsubscribeMode = false;
 
   function getLocalFollowersState() {
     try {
@@ -495,7 +496,7 @@
     followersCount.textContent = state.count;
     followersToggleBtn.textContent = state.isFollowing ? 'Following' : 'Follow';
     followersToggleBtn.classList.toggle('is-following', state.isFollowing);
-    existingSubscriptionBtn.textContent = state.isFollowing
+    existingSubscriptionBtn.textContent = isUnsubscribeMode
       ? 'Unsubscribe'
       : 'I already have a subscription';
   }
@@ -503,6 +504,9 @@
   function openAuthModal() {
     authMessage.textContent = '';
     authEmail.value = localStorage.getItem(FOLLOWER_EMAIL_KEY) || '';
+    existingSubscriptionBtn.textContent = isUnsubscribeMode
+      ? 'Unsubscribe'
+      : 'I already have a subscription';
     authModal.classList.add('is-visible');
     authModal.setAttribute('aria-hidden', 'false');
     authEmail.focus();
@@ -569,6 +573,7 @@
   }
 
   function showAlreadyFollowingMessage() {
+    isUnsubscribeMode = false;
     openAuthModal();
     authMessage.textContent = 'You are already following Adrien Jalbat.';
   }
@@ -675,12 +680,14 @@
 
   followersToggleBtn.addEventListener('click', async () => {
     if (followersState.isFollowing) {
+      isUnsubscribeMode = true;
       openAuthModal();
       authMessage.textContent = 'You are already following Adrien Jalbat. Enter the same Gmail if you want to unsubscribe.';
       return;
     }
 
     if (!currentUser) {
+      isUnsubscribeMode = false;
       openAuthModal();
       return;
     }
@@ -706,6 +713,7 @@
 
     const email = authEmail.value.trim();
     try {
+      isUnsubscribeMode = false;
       currentUser = { email };
       const alreadyFollowing = await registerFollowerEmail(email);
       closeAuthModal();
@@ -727,10 +735,11 @@
     }
 
     try {
-      if (followersState.isFollowing) {
+      if (isUnsubscribeMode) {
         await unregisterFollowerEmail(email);
         localStorage.removeItem(FOLLOWER_EMAIL_KEY);
         currentUser = null;
+        isUnsubscribeMode = false;
         closeAuthModal();
         return;
       }
@@ -742,6 +751,7 @@
       }
 
       currentUser = { email };
+      isUnsubscribeMode = false;
       followersState = {
         ...followersState,
         isFollowing: true,
