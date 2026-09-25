@@ -474,7 +474,6 @@
   const authMessage = document.getElementById('authMessage');
   let currentUser = null;
   let isUnsubscribeMode = false;
-  let sessionKnown = false;
 
   function getLocalFollowersState() {
     try {
@@ -582,8 +581,9 @@
   }
 
   function showAlreadyFollowingMessage() {
+    isUnsubscribeMode = true;
     openAuthModal();
-    authMessage.textContent = 'You are already following Adrien Jalbat.';
+    authMessage.textContent = 'This Gmail is already following Adrien Jalbat. Would you like to unsubscribe?';
   }
 
   async function ensureRemoteFollowersRow() {
@@ -676,7 +676,6 @@
     const savedEmail = localStorage.getItem(FOLLOWER_EMAIL_KEY);
     if (savedEmail) {
       currentUser = { email: savedEmail };
-      sessionKnown = true;
       try {
         followersState.isFollowing = await isEmailAlreadyFollowing(savedEmail);
       } catch (error) {
@@ -688,23 +687,35 @@
   }
 
   followersToggleBtn.addEventListener('click', async () => {
-    if (!sessionKnown || !currentUser) {
+    if (followersState.isFollowing) {
+      const savedEmail = currentUser?.email || localStorage.getItem(FOLLOWER_EMAIL_KEY);
+      if (savedEmail) {
+        try {
+          await unregisterFollowerEmail(savedEmail);
+          localStorage.removeItem(FOLLOWER_EMAIL_KEY);
+          currentUser = null;
+          isUnsubscribeMode = false;
+        } catch (error) {
+          console.error('Could not unsubscribe:', error);
+          authMessage.textContent = 'Could not update your subscription. Please try again.';
+        }
+      } else {
+        isUnsubscribeMode = true;
+        openAuthModal();
+        authMessage.textContent = 'Enter the same Gmail to manage your subscription.';
+      }
+      return;
+    }
+
+    if (!currentUser) {
       isUnsubscribeMode = false;
       openAuthModal();
       return;
     }
 
     try {
-      if (followersState.isFollowing) {
-        await unregisterFollowerEmail(currentUser.email);
-        localStorage.removeItem(FOLLOWER_EMAIL_KEY);
-        currentUser = null;
-        sessionKnown = false;
-        isUnsubscribeMode = false;
-        return;
-      }
-
-      await registerFollowerEmail(currentUser.email);
+      const alreadyFollowing = await registerFollowerEmail(currentUser.email);
+      if (alreadyFollowing) showAlreadyFollowingMessage();
     } catch (error) {
       console.error('Could not register follower:', error);
       authMessage.textContent = 'Could not save your subscription. Please try again.';
@@ -725,10 +736,12 @@
     try {
       isUnsubscribeMode = false;
       currentUser = { email };
-      sessionKnown = true;
       const alreadyFollowing = await registerFollowerEmail(email);
-      closeAuthModal();
-      if (alreadyFollowing) showAlreadyFollowingMessage();
+      if (alreadyFollowing) {
+        showAlreadyFollowingMessage();
+      } else {
+        closeAuthModal();
+      }
     } catch (error) {
       console.error('Could not register follower:', error);
       authMessage.textContent = 'Could not save your subscription. Please try again.';
@@ -762,17 +775,14 @@
       }
 
       currentUser = { email };
-      sessionKnown = true;
-      isUnsubscribeMode = false;
+      isUnsubscribeMode = true;
       followersState = {
         ...followersState,
         isFollowing: true,
       };
       saveLocalFollowersState(followersState);
       renderFollowers(followersState);
-      closeAuthModal();
-      isUnsubscribeMode = true;
-      showAlreadyFollowingMessage();
+      authMessage.textContent = 'This Gmail is already following Adrien Jalbat. Would you like to unsubscribe?';
     } catch (error) {
       console.error('Could not restore subscription:', error);
       authMessage.textContent = 'Could not find your subscription. Please try again.';
